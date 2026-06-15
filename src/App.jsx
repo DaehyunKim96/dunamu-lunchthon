@@ -543,6 +543,28 @@ export default function App() {
         </section>
       </main>
 
+      <nav className="mobile-tab-bar" aria-label="모바일 주요 화면">
+        <a href="#games">
+          <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 8a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8Zm6 1v6m0-3h.01" />
+          </svg>
+          <span>예매</span>
+        </a>
+        <a href="#market">
+          <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M4 7h12l-2-2m4 12H6l2 2" />
+          </svg>
+          <span>양도</span>
+        </a>
+        <a href="#wallet">
+          <svg className="tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <rect x="6" y="3" width="12" height="18" rx="2" />
+            <path d="M11 18h2" />
+          </svg>
+          <span>내 티켓</span>
+        </a>
+      </nav>
+
       {toast && <div className="toast" key={toast.id}>{toast.message}</div>}
     </div>
   )

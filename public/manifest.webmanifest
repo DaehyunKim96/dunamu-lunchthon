@@ -1,0 +1,20 @@
+{
+  "name": "Proof-of-Fandom Ticket",
+  "short_name": "PoF Ticket",
+  "description": "검증된 팬만 사고, 정가 이하로만 양도하는 KBO 티켓",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f5f7f5",
+  "theme_color": "#146b43",
+  "lang": "ko",
+  "icons": [
+    {
+      "src": "/assets/ballpark-ticket-gate.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
