@@ -1,0 +1,17 @@
+{
+  "name": "pof-ticket-contract",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:giwa": "hardhat run scripts/deploy.cjs --network giwaSepolia",
+    "seed:giwa": "hardhat run scripts/seed.cjs --network giwaSepolia"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-ethers": "^3.0.8",
+    "dotenv": "^16.4.7",
+    "ethers": "^6.13.5",
+    "hardhat": "^2.22.19"
+  }
+}

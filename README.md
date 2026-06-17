@@ -2,21 +2,27 @@
 
 GIWA Chain 위에서 동작하는 한국 프로야구 검증 티켓 예매/양도 서비스 프로토타입입니다.
 
-## 구성
+## 구조
 
-- `index.html` - 팬용 웹앱 프로토타입
-- `styles.css` - 반응형 UI 스타일
-- `app.js` - 예매, 양도, 검증 상태 데모 로직
-- `assets/ballpark-ticket-gate.png` - 생성형 이미지 기반 야구장 티켓 게이트 배경
-- `docs/proof-of-fandom-ticket-plan.md` - 리서치 기반 프로젝트 기획서
+- `frontend/` - React + Vite 기반 팬용 웹앱 mock
+- `contract/` - GIWA Sepolia 배포를 목표로 한 Solidity/Hardhat contract MVP
+- `docs/` - 기획서, 기능 명세, 스마트 컨트랙트 설계 문서
 
-## 실행
-
-외부 패키지 없이 정적 파일로 실행됩니다.
+## Frontend 실행
 
 ```bash
-python3 -m http.server 5173
+cd frontend
+npm install
+npm run dev
 ```
 
-브라우저에서 `http://localhost:5173`을 열면 됩니다.
+## Contract 실행
 
+```bash
+cd contract
+npm install
+cp .env.example .env
+npm run compile
+```
+
+GIWA Sepolia 배포는 `contract/README.md`를 참고하세요.

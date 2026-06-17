@@ -463,10 +463,10 @@ DojangAttesterId public constant UPBIT_KOREA = DojangAttesterId.wrap(
 
 ---
 
-## 11. 파일 구조 제안 (별도 레포 또는 `/contracts`)
+## 11. 파일 구조
 
 ```
-contracts/
+contract/
 ├── interfaces/
 │   ├── IVerifier.sol
 │   └── ITicketNFT.sol

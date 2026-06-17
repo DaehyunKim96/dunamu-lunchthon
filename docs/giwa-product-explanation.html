@@ -1,0 +1,1313 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>GIWA 기반 Proof-of-Fandom Ticket 설명서</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f6f8f7;
+        --paper: #ffffff;
+        --ink: #17211b;
+        --muted: #66736b;
+        --line: #dbe4dd;
+        --green: #146b43;
+        --green-dark: #0b4d33;
+        --mint: #e6f6ed;
+        --blue: #1f5f8f;
+        --amber: #94620f;
+        --red: #ad3d2c;
+        --code: #f1f5f2;
+        --shadow: 0 18px 55px rgba(18, 37, 27, 0.1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Pretendard, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        line-height: 1.65;
+      }
+
+      a {
+        color: var(--green-dark);
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+
+      .page {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 28px;
+        width: min(1280px, 100%);
+        margin: 0 auto;
+        padding: 28px;
+      }
+
+      .sidebar {
+        position: sticky;
+        top: 28px;
+        align-self: start;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 18px;
+        font-weight: 850;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 36px;
+        height: 36px;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--green);
+        color: white;
+      }
+
+      .nav-title {
+        margin: 18px 0 8px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .sidebar nav {
+        display: grid;
+        gap: 4px;
+      }
+
+      .sidebar a {
+        display: block;
+        padding: 7px 9px;
+        border-radius: 6px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 700;
+      }
+
+      .sidebar a:hover {
+        background: var(--mint);
+        color: var(--green-dark);
+        text-decoration: none;
+      }
+
+      main {
+        min-width: 0;
+      }
+
+      .hero,
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .hero {
+        padding: clamp(28px, 5vw, 56px);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 900;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 820px;
+        margin-bottom: 18px;
+        font-size: clamp(36px, 5vw, 62px);
+        line-height: 1.05;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        font-size: clamp(26px, 3vw, 38px);
+        line-height: 1.15;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin-bottom: 10px;
+        font-size: 20px;
+        line-height: 1.28;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 900px;
+        margin-bottom: 24px;
+        color: #37443c;
+        font-size: 18px;
+      }
+
+      .metric-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 28px;
+      }
+
+      .metric {
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .metric strong,
+      .metric span {
+        display: block;
+      }
+
+      .metric strong {
+        margin-bottom: 4px;
+        color: var(--green-dark);
+        font-size: 22px;
+        line-height: 1.2;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      section {
+        margin-top: 22px;
+        padding: clamp(24px, 4vw, 40px);
+      }
+
+      .section-intro {
+        max-width: 880px;
+        color: #3f4b44;
+      }
+
+      .concept-grid,
+      .contract-grid,
+      .todo-grid {
+        display: grid;
+        gap: 16px;
+      }
+
+      .concept-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        margin-top: 20px;
+      }
+
+      .contract-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .card {
+        min-width: 0;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .card h3 {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 24px;
+        padding: 0 8px;
+        border-radius: 999px;
+        background: var(--mint);
+        color: var(--green-dark);
+        font-size: 12px;
+        font-weight: 850;
+        white-space: nowrap;
+      }
+
+      .tag.blue {
+        background: #e5f0f8;
+        color: var(--blue);
+      }
+
+      .tag.amber {
+        background: #fbf0d9;
+        color: var(--amber);
+      }
+
+      .tag.red {
+        background: #fae5df;
+        color: var(--red);
+      }
+
+      .apply-box {
+        margin-top: 14px;
+        padding: 14px;
+        border-left: 4px solid var(--green);
+        border-radius: 6px;
+        background: var(--mint);
+      }
+
+      .apply-box strong {
+        display: block;
+        margin-bottom: 5px;
+        color: var(--green-dark);
+      }
+
+      .flow {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+        counter-reset: flow;
+      }
+
+      .flow-step {
+        position: relative;
+        padding: 16px 16px 16px 54px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .flow-step::before {
+        position: absolute;
+        left: 16px;
+        top: 17px;
+        display: grid;
+        width: 26px;
+        height: 26px;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--green);
+        color: white;
+        content: counter(flow);
+        counter-increment: flow;
+        font-size: 13px;
+        font-weight: 900;
+      }
+
+      .flow-step strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        font-size: 14px;
+      }
+
+      th,
+      td {
+        padding: 12px 14px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background: var(--mint);
+        color: var(--green-dark);
+        font-weight: 850;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      code {
+        padding: 2px 6px;
+        border-radius: 5px;
+        background: var(--code);
+        color: #203027;
+        font-family:
+          "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.92em;
+      }
+
+      pre {
+        overflow-x: auto;
+        margin: 14px 0 0;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #101914;
+        color: #e6f3eb;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      pre code {
+        padding: 0;
+        background: transparent;
+        color: inherit;
+      }
+
+      .note {
+        padding: 16px;
+        border: 1px solid #e8d6a7;
+        border-radius: 8px;
+        background: #fff8e7;
+        color: #4a3921;
+      }
+
+      .todo-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin-top: 16px;
+      }
+
+      .todo-card {
+        padding: 18px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .todo-card strong {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--green-dark);
+      }
+
+      .references {
+        display: grid;
+        gap: 8px;
+        margin: 0;
+        padding-left: 20px;
+      }
+
+      @media (max-width: 980px) {
+        .page {
+          grid-template-columns: 1fr;
+          padding: 18px;
+        }
+
+        .sidebar {
+          position: static;
+        }
+
+        .metric-grid,
+        .concept-grid,
+        .contract-grid,
+        .todo-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .page {
+          padding: 12px;
+        }
+
+        .hero,
+        section,
+        .sidebar {
+          padding: 18px;
+        }
+
+        h1 {
+          font-size: 34px;
+        }
+
+        table {
+          display: block;
+          overflow-x: auto;
+          white-space: nowrap;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <aside class="sidebar" aria-label="문서 목차">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">P</span>
+          <span>PoF Ticket</span>
+        </div>
+        <p class="nav-title">목차</p>
+        <nav>
+          <a href="#overview">전체 그림</a>
+          <a href="#connect">GIWA Chain 연결</a>
+          <a href="#contracts">GIWA Contracts</a>
+          <a href="#dojang">Dojang</a>
+          <a href="#dojang-contract">Dojang Contract</a>
+          <a href="#upid">UP ID</a>
+          <a href="#product">제품 적용 방식</a>
+          <a href="#contract-code">우리 Contract</a>
+          <a href="#flows">주요 흐름</a>
+          <a href="#next">추가 작업</a>
+          <a href="#references">참고 문서</a>
+        </nav>
+      </aside>
+
+      <main>
+        <article class="hero" id="overview">
+          <p class="eyebrow">GIWA 기반 제품 설명서</p>
+          <h1>Proof-of-Fandom Ticket을 이해하기 위한 GIWA 개념과 Contract 구조</h1>
+          <p class="lead">
+            이 문서는 GIWA Chain, Contracts, Dojang, UP ID가 무엇인지 초보자도
+            이해할 수 있게 설명하고, 이 개념을 한국 프로야구 티켓 예매/양도
+            제품에 어떻게 적용했는지 정리합니다.
+          </p>
+
+          <div class="metric-grid" aria-label="핵심 요약">
+            <div class="metric">
+              <strong>91342</strong>
+              <span>GIWA Sepolia Chain ID</span>
+            </div>
+            <div class="metric">
+              <strong>Dojang</strong>
+              <span>Verified Address 확인</span>
+            </div>
+            <div class="metric">
+              <strong>UP ID</strong>
+              <span>사람이 읽는 팬 이름</span>
+            </div>
+            <div class="metric">
+              <strong>NFT Ticket</strong>
+              <span>좌석 소유권과 정책 강제</span>
+            </div>
+          </div>
+        </article>
+
+        <section id="connect">
+          <p class="eyebrow">Concept 1</p>
+          <h2>Connect to GIWA Chain</h2>
+          <p class="section-intro">
+            블록체인 앱은 먼저 어느 네트워크에 연결할지 알아야 합니다. GIWA
+            Sepolia는 실제 서비스 배포 전 컨트랙트와 트랜잭션을 테스트하는
+            테스트넷입니다. 사용자는 지갑에서 GIWA Sepolia 네트워크를 추가하고,
+            프론트엔드는 RPC URL을 통해 체인 데이터를 읽고 트랜잭션을 보냅니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>값</th>
+                <th>의미</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Chain ID</td>
+                <td><code>91342</code></td>
+                <td>지갑과 앱이 GIWA Sepolia를 식별하는 번호입니다.</td>
+              </tr>
+              <tr>
+                <td>RPC</td>
+                <td><code>https://sepolia-rpc.giwa.io</code></td>
+                <td>블록, 계정, 트랜잭션 데이터를 읽고 쓰는 진입점입니다.</td>
+              </tr>
+              <tr>
+                <td>Flashblocks RPC</td>
+                <td><code>https://sepolia-rpc-flashblocks.giwa.io</code></td>
+                <td>더 빠른 preconfirmation UX를 구현할 때 활용할 수 있습니다.</td>
+              </tr>
+              <tr>
+                <td>Explorer</td>
+                <td><code>https://sepolia-explorer.giwa.io</code></td>
+                <td>배포된 컨트랙트와 트랜잭션 결과를 확인하는 화면입니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="apply-box">
+            <strong>이 제품에 적용한 방식</strong>
+            프론트엔드 설정 파일에 GIWA Sepolia 정보를 넣었습니다.
+            나중에 <code>wagmi</code>나 <code>viem</code>을 붙이면 이 설정을
+            기준으로 지갑 네트워크 전환, contract read, transaction write를
+            처리할 수 있습니다.
+          </div>
+
+          <pre><code>frontend/src/contracts/giwaSepolia.js
+
+export const giwaSepolia = {
+  id: 91342,
+  name: 'GIWA Sepolia',
+  rpcUrls: {
+    default: { http: ['https://sepolia-rpc.giwa.io'] },
+    flashblocks: { http: ['https://sepolia-rpc-flashblocks.giwa.io'] },
+  },
+}</code></pre>
+        </section>
+
+        <section id="contracts">
+          <p class="eyebrow">Concept 2</p>
+          <h2>GIWA Contracts</h2>
+          <p class="section-intro">
+            GIWA Contracts 문서는 GIWA Sepolia 위에서 이미 사용할 수 있도록
+            배포된 주요 컨트랙트 주소를 모아둔 문서입니다. 어렵게 들리지만,
+            쉽게 말하면 “GIWA 체인에서 자주 쓰는 공용 기능들의 주소록”입니다.
+          </p>
+          <p class="section-intro">
+            여기서 말하는 주소들은 우리가 만든 티켓 서비스의 컨트랙트 주소가
+            아닙니다. GIWA 생태계가 미리 준비해 둔 공용 컨트랙트 주소입니다.
+            예를 들어 지갑을 더 안전하게 운영하는 기능, 여러 데이터를 한 번에
+            읽는 기능, 검증 정보를 확인하는 기능, 사람 이름처럼 보이는 지갑
+            이름을 찾는 기능 등이 여기에 포함됩니다.
+          </p>
+
+          <div class="note">
+            <strong>먼저 용어부터 쉽게 정리하면:</strong>
+            <br />
+            <code>컨트랙트</code>는 블록체인 위에서 실행되는 프로그램입니다.
+            <code>컨트랙트 주소</code>는 그 프로그램이 배포된 위치입니다.
+            <code>인프라 컨트랙트</code>는 여러 서비스가 같이 쓰는 공용 프로그램입니다.
+            우리 제품은 이 공용 프로그램들을 직접 새로 만들지 않고, 이미 배포된
+            주소를 불러와 사용합니다.
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>문서 속 분류</th>
+                <th>대표 예시</th>
+                <th>쉽게 말하면</th>
+                <th>이 제품에서의 의미</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pre Installs</td>
+                <td>Safe, Multicall3, Permit2, EntryPoint</td>
+                <td>GIWA가 미리 준비해 둔 기본 도구 상자입니다.</td>
+                <td>
+                  지금 MVP의 핵심은 아니지만, 나중에 운영자 지갑을 더 안전하게
+                  만들거나 여러 조회를 한 번에 묶을 때 쓸 수 있습니다.
+                </td>
+              </tr>
+              <tr>
+                <td>System</td>
+                <td>WETH9, Bridge, GasPriceOracle, EAS</td>
+                <td>체인이 돌아가는 데 필요한 기반 기능입니다.</td>
+                <td>
+                  Dojang의 검증 기록은 EAS라는 시스템과 연결되어 있습니다.
+                  우리 제품은 보통 간편 조회용 DojangScroll을 쓰지만, 깊은
+                  감사가 필요하면 EAS 원본을 확인할 수 있습니다.
+                </td>
+              </tr>
+              <tr>
+                <td>Dojang</td>
+                <td>DojangScroll, AttestationIndexer</td>
+                <td>“이 지갑이 검증된 지갑인가?”를 확인하기 쉽게 만든 기능입니다.</td>
+                <td>
+                  티켓을 사는 사람과 양도받는 사람이 Verified Address인지
+                  확인하는 핵심 기능입니다.
+                </td>
+              </tr>
+              <tr>
+                <td>Playground</td>
+                <td>UPNameRegistry</td>
+                <td>사용자 경험을 더 좋게 만들기 위한 기능입니다.</td>
+                <td>
+                  팬을 긴 지갑 주소 대신 <code>minjun.up.id</code>처럼 사람이
+                  읽기 쉬운 이름으로 보여줄 수 있습니다.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="apply-box">
+            <strong>은행 앱에 비유하면</strong>
+            GIWA Contracts 문서는 은행 앱이 사용하는 공용 시스템 목록과 비슷합니다.
+            예를 들어 본인확인 시스템, 계좌 조회 시스템, 송금 시스템의 주소를
+            알아야 은행 앱이 동작합니다. 우리 티켓 앱도 마찬가지입니다. 검증
+            조회는 DojangScroll에 묻고, 검증 기록의 원본은 EAS에 있으며,
+            지갑 이름은 UPNameRegistry에서 찾습니다.
+          </div>
+
+          <div class="concept-grid">
+            <div class="card">
+              <h3>DojangScroll <span class="tag">검증 조회</span></h3>
+              <p>
+                한 줄로 말하면, DojangScroll은 “이 지갑이 검증된 지갑인지”
+                물어보는 창구입니다. 우리 서비스는 사용자가 티켓을 사거나
+                양도받으려고 할 때 이 창구에 확인 요청을 보냅니다.
+              </p>
+              <p>
+                코드에서는 <code>isVerified(address, bytes32)</code>처럼
+                호출합니다. 첫 번째 값은 확인할 지갑 주소입니다. 두 번째 값은
+                “어떤 기관이 검증한 결과를 볼 것인가”를 뜻합니다. 이 제품은
+                UPBIT KOREA attester ID를 기준으로 검증 여부를 확인합니다.
+              </p>
+              <p>
+                결과가 <code>true</code>이면 검증된 팬으로 보고 구매나 양도를
+                진행합니다. 결과가 <code>false</code>이면 컨트랙트가 거래를
+                막습니다.
+              </p>
+              <p><code>0xd5077b67dcb56caC8b270C7788FC3E6ee03F17B9</code></p>
+            </div>
+            <div class="card">
+              <h3>EAS <span class="tag blue">Attestation</span></h3>
+              <p>
+                EAS는 검증 기록을 저장하는 기반 시스템입니다. 여기서
+                <code>attestation</code>은 “누가, 누구에 대해, 어떤 사실을
+                증명했다”는 기록이라고 이해하면 됩니다.
+              </p>
+              <p>
+                예를 들어 “UPBIT KOREA가 이 지갑 주소는 검증된 주소라고
+                증명했다”는 기록이 attestation입니다. 우리 제품은 MVP에서는
+                EAS를 직접 읽지 않고, 더 간단한 DojangScroll을 통해
+                <code>true</code> / <code>false</code>만 확인합니다.
+              </p>
+              <p>
+                다만 나중에 운영자 대시보드나 감사 화면을 만들면 “이 주소가
+                언제, 어떤 schema로, 어떤 attester에게 검증되었는가” 같은 원본
+                정보를 EAS에서 더 자세히 확인할 수 있습니다.
+              </p>
+              <p><code>0x4200000000000000000000000000000000000021</code></p>
+            </div>
+            <div class="card">
+              <h3>UPNameRegistry <span class="tag amber">이름</span></h3>
+              <p>
+                UPNameRegistry는 지갑 주소와 <code>username.up.id</code> 같은
+                이름의 연결을 확인하는 곳입니다. 블록체인 주소는
+                <code>0x...</code>로 시작하는 긴 문자열이라 사용자가 외우기도,
+                비교하기도 어렵습니다.
+              </p>
+              <p>
+                그래서 티켓 양도 화면에서 판매자를
+                <code>0x7a91...4c21</code>로만 보여주면 사용자는 상대방을
+                신뢰하기 어렵습니다. <code>hyejin.up.id</code>처럼 표시하면
+                훨씬 자연스럽습니다.
+              </p>
+              <p>
+                이 기능은 권한을 판단하는 핵심 보안 장치는 아닙니다. 보안 판단은
+                Dojang Verified Address가 하고, UPNameRegistry는 사용자가
+                상대방을 더 쉽게 이해하도록 돕는 UX 장치입니다.
+              </p>
+              <p><code>0x091D00004f21eb2Fc30964A8a4995692d9b49628</code></p>
+            </div>
+            <div class="card">
+              <h3>Attester ID <span class="tag">신뢰 발행자</span></h3>
+              <p>
+                attester는 검증을 발행한 주체입니다. 쉽게 말하면 “도장을 찍은
+                기관”입니다. 같은 지갑 주소라도 누가 검증했는지에 따라 의미가
+                달라질 수 있기 때문에, 검증 여부를 볼 때는 발행자를 함께 봐야
+                합니다.
+              </p>
+              <p>
+                예를 들어 단순히 “이 주소가 검증되었나?”라고 묻는 것보다
+                “이 주소가 UPBIT KOREA 기준으로 검증되었나?”라고 묻는 편이
+                더 정확합니다. 이 제품은 한국 야구 티켓 서비스라는 맥락에 맞춰
+                UPBIT KOREA attester ID를 기본값으로 사용합니다.
+              </p>
+              <p><code>0xd99b42e778498aa3c9c1f6a012359130252780511687a35982e8e52735453034</code></p>
+            </div>
+          </div>
+
+          <div class="apply-box">
+            <strong>이 제품에 적용한 방식</strong>
+            프론트엔드에는 DojangScroll, EAS, UPNameRegistry 주소를 설정값으로
+            넣어두었습니다. 사용자가 화면에서 지갑을 연결하면 프론트는 이 주소들을
+            기준으로 “검증 상태”, “이름 표시”, “explorer 연결” 같은 기능을 붙일
+            수 있습니다.
+            <br /><br />
+            컨트랙트 배포 시에는 verifier 주소와 attester ID를 넣습니다. 실제
+            서비스 모드에서는 verifier 주소로 GIWA의 DojangScroll을 사용합니다.
+            해커톤 데모 모드에서는 실제 KYC가 없어도 흐름을 보여줄 수 있도록
+            MockDojangVerifier를 배포합니다. 두 경우 모두 함수 이름은
+            <code>isVerified</code>로 같기 때문에, 티켓 구매/양도 로직은 그대로
+            유지하면서 검증 제공자만 바꿀 수 있습니다.
+          </div>
+        </section>
+
+        <section id="dojang">
+          <p class="eyebrow">Concept 3</p>
+          <h2>Dojang</h2>
+          <p class="section-intro">
+            Dojang은 블록체인 밖에서 확인된 신뢰 정보를 블록체인 안에서 검증
+            가능한 형태로 바꾸는 서비스입니다. 쉽게 말하면 “오프체인에서 확인된
+            사실에 대해 온체인 도장을 찍는 시스템”입니다. 여기서 오프체인은
+            거래소 KYC, 잔고 확인, 인증번호 확인처럼 블록체인 밖에서 일어나는
+            일을 뜻하고, 온체인은 스마트 컨트랙트가 직접 읽을 수 있는 블록체인
+            기록을 뜻합니다.
+          </p>
+          <p class="section-intro">
+            중요한 점은 Dojang이 사용자의 주민등록번호, 이름, 전화번호 같은
+            개인정보를 우리 티켓 contract에 저장하게 만드는 시스템이 아니라는
+            것입니다. 우리 product가 필요한 것은 “이 사람이 누구인가”가 아니라
+            “이 주소가 신뢰 가능한 검증을 통과했는가”입니다. Dojang은 이 yes/no
+            판단을 온체인에서 사용할 수 있게 해줍니다.
+          </p>
+
+          <div class="flow">
+            <div class="flow-step">
+              <strong>사용자가 오프체인 검증을 통과합니다.</strong>
+              예를 들어 거래소나 인증 제공자가 사용자의 신원을 확인합니다.
+              이 단계에서 민감한 개인정보는 오프체인 시스템 안에서 다뤄집니다.
+            </div>
+            <div class="flow-step">
+              <strong>검증 결과가 attestation으로 발급됩니다.</strong>
+              Dojang은 EAS 기반 attestation을 사용해 “이 주소는 검증됨” 같은
+              사실을 GIWA 위에서 확인 가능하게 만듭니다.
+            </div>
+            <div class="flow-step">
+              <strong>앱 또는 contract가 <code>isVerified</code>를 호출합니다.</strong>
+              주소와 attester ID를 넣으면 검증 여부가 반환됩니다. 이때 product는
+              개인정보 원문을 보지 않고도 정책을 집행할 수 있습니다.
+            </div>
+            <div class="flow-step">
+              <strong>검증된 주소만 티켓 구매와 양도가 가능합니다.</strong>
+              contract 단계에서 검증을 강제하므로 프론트 버튼을 우회해도
+              미검증 주소의 구매나 양도 수락은 실패합니다.
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Dojang 발급 데이터</th>
+                <th>뜻</th>
+                <th>이 제품에서의 사용 여부</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Verified Address</td>
+                <td>발행자로부터 고객확인을 받은 지갑 주소입니다.</td>
+                <td>핵심 사용. 구매, 민팅, 양도 수락을 허용할지 판단합니다.</td>
+              </tr>
+              <tr>
+                <td>Balance Root</td>
+                <td>특정 시점의 전체 사용자 잔고 데이터를 merkle tree로 요약한 값입니다.</td>
+                <td>현재 MVP에서는 사용하지 않습니다. 향후 팬 등급이나 자산 조건 이벤트에 응용 가능합니다.</td>
+              </tr>
+              <tr>
+                <td>Verified Balance</td>
+                <td>특정 시점의 잔고를 검증받았다는 증명입니다.</td>
+                <td>현재 MVP에서는 사용하지 않습니다. 고가 좌석, 멤버십 혜택 등에 확장 가능성이 있습니다.</td>
+              </tr>
+              <tr>
+                <td>Verified Code</td>
+                <td>오프체인에서 받은 인증번호를 온체인에서 검증할 수 있게 한 데이터입니다.</td>
+                <td>현재 MVP에서는 사용하지 않습니다. 이벤트 쿠폰, 구단 인증 코드 등에 응용 가능합니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pre><code>interface IDojangVerifier {
+  function isVerified(address addr, bytes32 attesterId)
+    external
+    view
+    returns (bool);
+}</code></pre>
+
+          <div class="apply-box">
+            <strong>이 제품에 적용한 방식</strong>
+            1차 예매, NFT 발급, 2차 양도 수락, NFT 수신자 검증에 모두 Dojang
+            검증을 넣었습니다. 프론트에서 버튼을 비활성화하는 것은 사용자 경험을
+            위한 1차 방어이고, contract의 <code>isVerified</code> 검사는 실제
+            보안 정책입니다. 따라서 사용자가 브라우저 콘솔이나 다른 지갑 도구로
+            직접 transaction을 보내도 검증되지 않았다면 revert됩니다.
+          </div>
+        </section>
+
+        <section id="dojang-contract">
+          <p class="eyebrow">Concept 4</p>
+          <h2>Dojang Contract</h2>
+          <p class="section-intro">
+            Dojang Contract 문서는 Dojang을 구성하는 실제 스마트 컨트랙트와
+            식별자들을 정리합니다. 여기에는 attester, schema, 조회용 contract가
+            들어 있습니다. 이 세 가지를 구분하면 Dojang 구조를 훨씬 쉽게 이해할
+            수 있습니다.
+          </p>
+
+          <div class="concept-grid">
+            <div class="card">
+              <h3>Attester <span class="tag">누가 증명했나</span></h3>
+              <p>
+                attester는 검증을 발행한 주체입니다. 예를 들어 UPBIT KOREA
+                attester는 특정 주소가 고객확인을 받은 주소라는 사실을 발행할
+                수 있습니다.
+              </p>
+              <p>
+                contract가 <code>isVerified(user, attesterId)</code>를 호출할 때
+                이 attester ID를 함께 넣는 이유는, “아무 검증이나 있으면 통과”가
+                아니라 “우리가 신뢰하는 발행자의 검증만 통과”시키기 위해서입니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Schema <span class="tag blue">무엇을 증명했나</span></h3>
+              <p>
+                schema는 attestation 데이터의 형식입니다. Verified Address
+                schema는 <code>bool isVerified</code> 형태로, 어떤 주소가 검증
+                상태인지 표현합니다.
+              </p>
+              <p>
+                같은 EAS 기반 attestation이어도 Verified Address, Verified
+                Balance, Verified Code는 서로 다른 의미를 가지므로 schema로
+                구분합니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>EAS / Indexer <span class="tag amber">원장과 색인</span></h3>
+              <p>
+                EAS는 attestation의 발행, 조회, 취소를 담당하는 원장에 가깝고,
+                AttestationIndexer는 Dojang attestation들을 쿼리하기 쉽게
+                정리하는 색인 계층입니다.
+              </p>
+              <p>
+                제품 운영자가 “왜 이 주소가 검증 상태인가”를 더 깊게 추적해야
+                할 때는 이 계층을 참고할 수 있습니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>DojangScroll <span class="tag red">간편 조회</span></h3>
+              <p>
+                앱 contract가 매번 EAS 원본 구조를 직접 해석하면 복잡해집니다.
+                DojangScroll은 검증 여부처럼 자주 필요한 Dojang 데이터를 간단한
+                함수 호출로 읽을 수 있게 해줍니다.
+              </p>
+              <p>
+                우리 티켓 contract가 직접 연결하는 대상은 이 DojangScroll 형태의
+                verifier입니다.
+              </p>
+            </div>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>항목</th>
+                <th>문서 기준 값</th>
+                <th>제품 적용</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>UPBIT KOREA Attester ID</td>
+                <td><code>0xd99b42e778498aa3c9c1f6a012359130252780511687a35982e8e52735453034</code></td>
+                <td>한국 사용자의 Verified Address 판정 기본 발행자로 사용합니다.</td>
+              </tr>
+              <tr>
+                <td>Verified Address Schema</td>
+                <td><code>bool isVerified</code></td>
+                <td>티켓 구매/양도 가능 여부를 true/false로 판단합니다.</td>
+              </tr>
+              <tr>
+                <td>EAS</td>
+                <td><code>0x4200000000000000000000000000000000000021</code></td>
+                <td>attestation 원본 조회나 운영 감사 기능에서 활용할 수 있습니다.</td>
+              </tr>
+              <tr>
+                <td>DojangScroll</td>
+                <td><code>0xd5077b67dcb56caC8b270C7788FC3E6ee03F17B9</code></td>
+                <td>contract의 verifier 주소로 주입해 <code>isVerified</code>를 호출합니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="apply-box">
+            <strong>우리 contract가 이 구조를 쓰는 방식</strong>
+            <code>IDojangVerifier</code> 인터페이스는 의도적으로
+            <code>isVerified(address, bytes32)</code>만 정의합니다. 그래서 실제
+            배포에서는 GIWA DojangScroll 주소를 넣고, 해커톤 데모에서는
+            <code>MockDojangVerifier</code> 주소를 넣을 수 있습니다. 프론트와
+            티켓 로직은 바꾸지 않고 “검증 제공자”만 교체하는 구조입니다.
+          </div>
+
+          <pre><code>constructor(address ticket_, address verifier_, bytes32 attesterId_) {
+  ticket = BaseballTicketNFT(ticket_);
+  verifier = IDojangVerifier(verifier_);
+  attesterId = attesterId_;
+}
+
+if (!verifier.isVerified(msg.sender, attesterId)) {
+  revert NotVerified(msg.sender);
+}</code></pre>
+        </section>
+
+        <section id="upid">
+          <p class="eyebrow">Concept 5</p>
+          <h2>UP ID</h2>
+          <p class="section-intro">
+            UP ID는 긴 지갑 주소 대신 사람이 읽을 수 있는 이름을 제공하는
+            서비스입니다. 블록체인 주소는 정확하지만 사람이 기억하기 어렵고,
+            UI에 노출했을 때 신뢰를 주기도 어렵습니다. UP ID는
+            <code>username.up.id</code> 형태의 이름으로 지갑을 찾고 기억하게
+            해줍니다.
+          </p>
+          <p class="section-intro">
+            문서 기준으로 UP ID는 Verified Address를 통해 고객확인된 지갑에
+            제공되고, SBT처럼 양도할 수 없는 형태로 설계되어 있습니다. 즉 UP ID는
+            단순한 닉네임이 아니라 “검증된 지갑에 붙은, 양도 불가능한 이름”에
+            가깝습니다. 고객인증이 유효하지 않게 되면 이름과 주소의 연결에도
+            영향이 생길 수 있으며, grace period 정책도 존재합니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>주소 기반 UX</th>
+                <th>UP ID 기반 UX</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><code>0x7a91...4c21</code>에게 양도</td>
+                <td><code>minjun.up.id</code>에게 양도</td>
+              </tr>
+              <tr>
+                <td>사용자가 상대방을 식별하기 어렵습니다.</td>
+                <td>팬, 판매자, 구매자를 사람 이름처럼 표시할 수 있습니다.</td>
+              </tr>
+              <tr>
+                <td>실수로 잘못 보낼 위험이 큽니다.</td>
+                <td>주소와 이름을 함께 표시해 확인 UX를 만들 수 있습니다.</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div class="concept-grid">
+            <div class="card">
+              <h3>왜 티켓 서비스에 필요한가</h3>
+              <p>
+                티켓 양도는 상대방 신뢰가 중요합니다. 판매자가
+                <code>0xA13f...91c2</code>로만 보이면 사용자는 누가 파는지
+                판단하기 어렵습니다. <code>hyejin.up.id</code>처럼 표시하면
+                팬이 상대방을 더 쉽게 인지할 수 있습니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>Dojang과의 관계</h3>
+              <p>
+                권한 판단은 Dojang Verified Address가 담당합니다. UP ID는 그
+                권한 위에 올라가는 사용자 경험입니다. 즉 “구매할 수 있는가”는
+                Dojang이 결정하고, “누가 구매하거나 양도하는가를 어떻게 보여줄
+                것인가”는 UP ID가 도와줍니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>ENS 호환성</h3>
+              <p>
+                UP ID는 ENS 프로토콜 위의 <code>up.id</code> 서브도메인 형태로
+                제공됩니다. 따라서 ENS를 지원하는 라이브러리와 도구를 사용해
+                이름 해석 UX를 구현할 수 있습니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>제품에서 주의할 점</h3>
+              <p>
+                이름은 UX에 유용하지만, contract 정책의 유일한 근거로 삼으면
+                안 됩니다. 최종 권한 판단은 항상 주소와 Dojang 검증 결과로 해야
+                합니다. UI에는 이름과 축약 주소를 함께 보여주는 것이 안전합니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="apply-box">
+            <strong>이 제품에 적용한 방식</strong>
+            현재 프론트 mock에는 <code>minjun.up.id</code>,
+            <code>hyejin.up.id</code>, <code>doyoon.up.id</code> 같은 이름을
+            판매자와 지갑 이름으로 표시했습니다. 다음 단계에서는 UPNameRegistry
+            또는 ENS 호환 resolver를 읽어서 실제 주소의 UP ID를 조회해야 합니다.
+            예매 완료 화면, 내 티켓 카드, 양도 마켓, 입장 QR 화면에서 모두
+            주소와 UP ID를 함께 보여주면 사용자가 “내가 가진 티켓이 누구에게
+            속해 있고, 누구에게 양도되는지”를 더 명확하게 이해할 수 있습니다.
+          </div>
+        </section>
+
+        <section id="product">
+          <p class="eyebrow">Product Mapping</p>
+          <h2>이 개념들이 제품에 들어가는 방식</h2>
+          <p class="section-intro">
+            Proof-of-Fandom Ticket의 핵심은 “검증된 팬만 사고, 검증된 팬끼리만
+            정가 이하로 양도한다”입니다. GIWA의 각 구성요소는 이 정책을 구현하기
+            위한 역할을 나눠 갖습니다.
+          </p>
+
+          <table>
+            <thead>
+              <tr>
+                <th>제품 문제</th>
+                <th>GIWA 개념</th>
+                <th>적용 방식</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>봇과 대량 계정이 인기 경기 티켓을 사는 문제</td>
+                <td>Dojang Verified Address</td>
+                <td>구매 시 <code>isVerified</code>를 통과한 주소만 mint 허용</td>
+              </tr>
+              <tr>
+                <td>검증되지 않은 외부 거래와 암표</td>
+                <td>NFT 전송 제한 + 공식 마켓</td>
+                <td>일반 <code>transferFrom</code>은 막고 공식 마켓만 전송 가능</td>
+              </tr>
+              <tr>
+                <td>정가 초과 재판매</td>
+                <td>Ticket metadata</td>
+                <td>NFT에 정가를 저장하고 <code>price &lt;= faceValue</code> 강제</td>
+              </tr>
+              <tr>
+                <td>주소가 너무 길어 상대방 식별이 어려움</td>
+                <td>UP ID</td>
+                <td><code>username.up.id</code>를 팬 이름과 판매자명으로 표시</td>
+              </tr>
+              <tr>
+                <td>입장 QR 스크린샷 재사용</td>
+                <td>GateVerifier + 동적 서명</td>
+                <td>짧은 만료 시간, nonce, 현재 소유자 확인 후 사용 처리</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section id="contract-code">
+          <p class="eyebrow">Contract Architecture</p>
+          <h2>우리 Contract 설명</h2>
+          <div class="contract-grid">
+            <div class="card">
+              <h3>BaseballTicketNFT <span class="tag">티켓 본체</span></h3>
+              <p>
+                NFT 1개가 좌석 1개입니다. 경기, 좌석, 정가, 양도 마감, 최대
+                양도 횟수, 사용 상태를 저장합니다. 민팅 시 verified 주소인지
+                확인하고, 전송 시 공식 마켓인지 다시 확인합니다.
+              </p>
+              <p>
+                핵심 파일:
+                <code>contract/contracts/ticket/BaseballTicketNFT.sol</code>
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>PrimaryTicketSale <span class="tag blue">1차 예매</span></h3>
+              <p>
+                운영자가 좌석을 등록하고, 팬이 좌석을 구매합니다. 가격, 판매
+                여부, Verified Address, 1인 구매 제한을 검사한 뒤 티켓 NFT를
+                발급합니다.
+              </p>
+              <p>
+                핵심 파일:
+                <code>contract/contracts/sale/PrimaryTicketSale.sol</code>
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>TicketTransferMarket <span class="tag amber">2차 양도</span></h3>
+              <p>
+                티켓 보유자가 정가 이하 가격으로 티켓을 등록하고, 검증된 팬만
+                구매할 수 있습니다. 실제 NFT 이동은 이 마켓을 통해서만 가능합니다.
+              </p>
+              <p>
+                핵심 파일:
+                <code>contract/contracts/market/TicketTransferMarket.sol</code>
+              </p>
+            </div>
+
+            <div class="card">
+              <h3>GateVerifier <span class="tag red">입장 처리</span></h3>
+              <p>
+                게이트 서버가 발급한 EIP-712 서명을 검증합니다. 서명이 유효하고,
+                QR이 만료되지 않았고, 현재 소유자가 맞고, nonce가 재사용되지
+                않았다면 티켓을 사용 처리합니다.
+              </p>
+              <p>
+                핵심 파일:
+                <code>contract/contracts/gate/GateVerifier.sol</code>
+              </p>
+            </div>
+          </div>
+
+          <div class="note" style="margin-top: 18px">
+            현재 구현은 해커톤 MVP에 맞춘 구조입니다. 외부 의존성을 줄이기 위해
+            최소 ERC-721과 AccessControl을 직접 구현했습니다. 실서비스 전에는
+            OpenZeppelin 기반 재작성, 보안 감사, 멀티시그 권한 관리가 필요합니다.
+          </div>
+        </section>
+
+        <section id="flows">
+          <p class="eyebrow">User Flows</p>
+          <h2>주요 사용자 흐름</h2>
+
+          <h3>1차 예매 흐름</h3>
+          <div class="flow">
+            <div class="flow-step">
+              <strong>운영자가 좌석을 등록합니다.</strong>
+              경기 ID, 좌석 ID, 정가, 시작 시간, 양도 마감, 1인 제한을
+              <code>PrimaryTicketSale</code>에 등록합니다.
+            </div>
+            <div class="flow-step">
+              <strong>팬이 좌석을 선택하고 구매합니다.</strong>
+              팬은 <code>purchase(seatKey)</code>를 호출하고 테스트 ETH를 함께 보냅니다.
+            </div>
+            <div class="flow-step">
+              <strong>Dojang 검증을 통과해야 합니다.</strong>
+              verified가 아니면 구매 트랜잭션은 revert됩니다.
+            </div>
+            <div class="flow-step">
+              <strong>티켓 NFT가 발급됩니다.</strong>
+              발급된 NFT에는 정가, 좌석, 양도 정책이 저장됩니다.
+            </div>
+          </div>
+
+          <h3 style="margin-top: 28px">2차 양도 흐름</h3>
+          <div class="flow">
+            <div class="flow-step">
+              <strong>보유자가 정가 이하로 등록합니다.</strong>
+              <code>TicketTransferMarket.list(tokenId, priceWei)</code>를 호출합니다.
+            </div>
+            <div class="flow-step">
+              <strong>마켓은 가격 상한을 검사합니다.</strong>
+              등록 가격이 NFT의 정가보다 높으면 revert됩니다.
+            </div>
+            <div class="flow-step">
+              <strong>구매자는 verified 주소여야 합니다.</strong>
+              verified가 아니면 양도 수락이 실패합니다.
+            </div>
+            <div class="flow-step">
+              <strong>NFT는 공식 마켓을 통해서만 이동합니다.</strong>
+              임의 전송, 외부 거래, 정가 초과 우회를 줄입니다.
+            </div>
+          </div>
+
+          <h3 style="margin-top: 28px">입장 흐름</h3>
+          <div class="flow">
+            <div class="flow-step">
+              <strong>게이트 서버가 QR용 서명을 만듭니다.</strong>
+              tokenId, 현재 owner, expiry, nonce, gateId를 포함합니다.
+            </div>
+            <div class="flow-step">
+              <strong>GateVerifier가 서명을 검증합니다.</strong>
+              서명자 권한, 만료 시간, nonce 재사용, 현재 소유자를 확인합니다.
+            </div>
+            <div class="flow-step">
+              <strong>검증이 끝나면 티켓을 사용 처리합니다.</strong>
+              NFT 상태가 <code>Used</code>가 되면 재양도와 재사용이 차단됩니다.
+            </div>
+          </div>
+        </section>
+
+        <section id="next">
+          <p class="eyebrow">Next Steps</p>
+          <h2>추가 작업</h2>
+          <div class="todo-grid">
+            <div class="todo-card">
+              <strong>프론트 온체인 연동</strong>
+              <p>
+                <code>wagmi</code> 또는 <code>viem</code>을 추가하고 현재 state
+                mock handler를 contract write/read 호출로 교체해야 합니다.
+              </p>
+            </div>
+            <div class="todo-card">
+              <strong>ABI와 배포 주소 관리</strong>
+              <p>
+                Hardhat artifact에서 프론트가 사용할 ABI를 export하고,
+                GIWA Sepolia 배포 결과 JSON을 환경변수와 동기화해야 합니다.
+              </p>
+            </div>
+            <div class="todo-card">
+              <strong>GIWA Sepolia 배포</strong>
+              <p>
+                데모는 <code>USE_MOCK_VERIFIER=true</code>로, 실제 Dojang 검증
+                데모는 <code>USE_MOCK_VERIFIER=false</code>로 배포합니다.
+              </p>
+            </div>
+            <div class="todo-card">
+              <strong>UP ID 조회</strong>
+              <p>
+                현재는 문자열 mock입니다. UPNameRegistry를 읽어 주소를
+                <code>username.up.id</code>로 표시하는 resolver가 필요합니다.
+              </p>
+            </div>
+            <div class="todo-card">
+              <strong>게이트 QR API</strong>
+              <p>
+                QR payload를 만들고 EIP-712 서명하는 서버가 필요합니다.
+                contract는 검증만 담당합니다.
+              </p>
+            </div>
+            <div class="todo-card">
+              <strong>보안과 운영 정책</strong>
+              <p>
+                OpenZeppelin 기반 재작성, audit, 멀티시그, pause, 환불,
+                우천취소, 관리자 화면을 보강해야 합니다.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="references">
+          <p class="eyebrow">References</p>
+          <h2>참고 문서</h2>
+          <ul class="references">
+            <li>
+              <a href="https://docs.giwa.io/network-information/contracts">
+                GIWA Network Information - Contracts
+              </a>
+            </li>
+            <li>
+              <a href="https://docs.giwa.io/giwa-ecosystem/dojang">
+                GIWA Ecosystem - Dojang
+              </a>
+            </li>
+            <li>
+              <a href="https://docs.giwa.io/giwa-ecosystem/dojang/contracts">
+                Dojang Contracts
+              </a>
+            </li>
+            <li>
+              <a href="https://docs.giwa.io/giwa-ecosystem/dojang/verified-address">
+                Dojang Verified Address
+              </a>
+            </li>
+            <li>
+              <a href="https://docs.giwa.io/giwa-ecosystem/up-id">
+                Upbit Web3 Names - UP ID
+              </a>
+            </li>
+            <li>
+              <a href="https://docs.giwa.io/getting-started/connect-to-giwa-chain">
+                Connect to GIWA Chain
+              </a>
+            </li>
+          </ul>
+        </section>
+      </main>
+    </div>
+  </body>
+</html>

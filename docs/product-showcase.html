@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Proof-of-Fandom Ticket</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f4f7f5;
+        --paper: #ffffff;
+        --ink: #17211b;
+        --muted: #627069;
+        --line: #d9e3dc;
+        --green: #146b43;
+        --green-dark: #0b4d33;
+        --mint: #e4f5eb;
+        --blue: #1f5f8f;
+        --blue-soft: #e5f0f8;
+        --gold: #a66d10;
+        --gold-soft: #fff2d7;
+        --red: #b4422f;
+        --red-soft: #fae6df;
+        --black: #101713;
+        --shadow: 0 18px 52px rgba(18, 37, 27, 0.12);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Pretendard, Inter, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        line-height: 1.65;
+        letter-spacing: 0;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        min-height: 68px;
+        padding: 12px clamp(18px, 5vw, 64px);
+        border-bottom: 1px solid rgba(217, 227, 220, 0.82);
+        background: rgba(244, 247, 245, 0.92);
+        backdrop-filter: blur(18px);
+      }
+
+      .brand {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 900;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 34px;
+        height: 34px;
+        place-items: center;
+        border-radius: 8px;
+        background: var(--green);
+        color: white;
+      }
+
+      .nav {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 4px;
+      }
+
+      .nav a {
+        padding: 8px 10px;
+        border-radius: 6px;
+        color: var(--muted);
+        font-size: 14px;
+        font-weight: 750;
+      }
+
+      .nav a:hover {
+        background: var(--mint);
+        color: var(--green-dark);
+      }
+
+      .hero {
+        position: relative;
+        min-height: min(760px, calc(100vh - 68px));
+        overflow: hidden;
+        display: grid;
+        align-items: end;
+        padding: clamp(92px, 14vw, 160px) clamp(18px, 6vw, 80px) 44px;
+        color: white;
+      }
+
+      .hero::before,
+      .hero::after {
+        position: absolute;
+        inset: 0;
+        content: "";
+      }
+
+      .hero::before {
+        background-image:
+          linear-gradient(90deg, rgba(7, 14, 10, 0.9), rgba(7, 14, 10, 0.52) 52%, rgba(7, 14, 10, 0.18)),
+          linear-gradient(0deg, rgba(7, 14, 10, 0.68), rgba(7, 14, 10, 0.08) 62%),
+          url("../frontend/public/assets/ballpark-ticket-gate.png");
+        background-position: center;
+        background-size: cover;
+      }
+
+      .hero::after {
+        background: rgba(0, 0, 0, 0.08);
+      }
+
+      .hero-inner {
+        position: relative;
+        z-index: 1;
+        width: min(1080px, 100%);
+      }
+
+      .eyebrow {
+        margin: 0 0 10px;
+        color: var(--green);
+        font-size: 12px;
+        font-weight: 950;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+      }
+
+      .hero .eyebrow {
+        color: #bff0d1;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        max-width: 880px;
+        margin-bottom: 18px;
+        font-size: clamp(42px, 7vw, 84px);
+        line-height: 0.98;
+        letter-spacing: 0;
+      }
+
+      .hero-copy {
+        max-width: 760px;
+        margin-bottom: 28px;
+        color: rgba(255, 255, 255, 0.86);
+        font-size: clamp(17px, 2vw, 22px);
+        font-weight: 560;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 46px;
+        padding: 0 18px;
+        border: 1px solid rgba(255, 255, 255, 0.34);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.14);
+        color: white;
+        font-weight: 850;
+      }
+
+      .button.primary {
+        border-color: var(--green);
+        background: var(--green);
+      }
+
+      .metric-strip {
+        position: relative;
+        z-index: 1;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 1px;
+        width: min(920px, 100%);
+        margin-top: 54px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.24);
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(12px);
+      }
+
+      .metric-strip div {
+        min-height: 92px;
+        padding: 17px;
+        background: rgba(10, 18, 13, 0.3);
+      }
+
+      .metric-strip strong,
+      .metric-strip span {
+        display: block;
+      }
+
+      .metric-strip strong {
+        margin-bottom: 4px;
+        font-size: clamp(19px, 2.2vw, 30px);
+        line-height: 1.12;
+      }
+
+      .metric-strip span {
+        color: rgba(255, 255, 255, 0.76);
+        font-size: 13px;
+        font-weight: 760;
+      }
+
+      main {
+        display: grid;
+        gap: 24px;
+        padding: 26px clamp(18px, 5vw, 72px) 64px;
+      }
+
+      section {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--paper);
+        box-shadow: var(--shadow);
+      }
+
+      .section-inner {
+        padding: clamp(28px, 4vw, 48px);
+      }
+
+      h2 {
+        margin-bottom: 16px;
+        font-size: clamp(28px, 4vw, 46px);
+        line-height: 1.12;
+        letter-spacing: 0;
+      }
+
+      h3 {
+        margin-bottom: 10px;
+        font-size: 21px;
+        line-height: 1.25;
+        letter-spacing: 0;
+      }
+
+      .lead {
+        max-width: 900px;
+        margin-bottom: 24px;
+        color: #3d4a43;
+        font-size: 18px;
+      }
+
+      .grid-2,
+      .grid-3,
+      .grid-4 {
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid-2 {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .grid-3 {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .grid-4 {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .card {
+        min-width: 0;
+        padding: 22px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .card strong {
+        color: var(--green-dark);
+      }
+
+      .problem-card {
+        border-color: #ead3ca;
+        background: #fff8f5;
+      }
+
+      .solution-card {
+        border-color: #cfe4d7;
+        background: #f4fbf7;
+      }
+
+      .tag {
+        display: inline-flex;
+        align-items: center;
+        min-height: 25px;
+        margin-bottom: 12px;
+        padding: 0 9px;
+        border-radius: 999px;
+        background: var(--mint);
+        color: var(--green-dark);
+        font-size: 12px;
+        font-weight: 900;
+        white-space: nowrap;
+      }
+
+      .tag.blue {
+        background: var(--blue-soft);
+        color: var(--blue);
+      }
+
+      .tag.gold {
+        background: var(--gold-soft);
+        color: var(--gold);
+      }
+
+      .tag.red {
+        background: var(--red-soft);
+        color: var(--red);
+      }
+
+      .architecture {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .flow {
+        display: grid;
+        gap: 12px;
+        counter-reset: step;
+      }
+
+      .flow-step {
+        position: relative;
+        min-height: 76px;
+        padding: 17px 18px 17px 58px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .flow-step::before {
+        position: absolute;
+        left: 17px;
+        top: 19px;
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        border-radius: 999px;
+        background: var(--green);
+        color: white;
+        content: counter(step);
+        counter-increment: step;
+        font-size: 13px;
+        font-weight: 950;
+      }
+
+      .flow-step strong {
+        display: block;
+        margin-bottom: 3px;
+      }
+
+      .system-map {
+        display: grid;
+        gap: 12px;
+      }
+
+      .map-row {
+        display: grid;
+        grid-template-columns: 170px minmax(0, 1fr);
+        gap: 12px;
+        align-items: center;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .map-row strong {
+        color: var(--green-dark);
+      }
+
+      .highlight {
+        display: grid;
+        grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .dark-panel {
+        padding: clamp(28px, 4vw, 42px);
+        border-radius: 8px;
+        background: var(--black);
+        color: white;
+      }
+
+      .dark-panel .eyebrow {
+        color: #bff0d1;
+      }
+
+      .dark-panel p {
+        color: rgba(255, 255, 255, 0.78);
+      }
+
+      .ticket-preview {
+        display: grid;
+        gap: 14px;
+        padding: 22px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 8px;
+        background:
+          linear-gradient(135deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04)),
+          #14261b;
+      }
+
+      .ticket-line {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      }
+
+      .ticket-line span {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .ticket-line strong {
+        color: white;
+        text-align: right;
+      }
+
+      .qr-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        width: 140px;
+        aspect-ratio: 1;
+        padding: 10px;
+        border-radius: 8px;
+        background: white;
+      }
+
+      .qr-grid i {
+        border-radius: 2px;
+        background: #101713;
+      }
+
+      .qr-grid i:nth-child(3n) {
+        background: transparent;
+      }
+
+      .timeline {
+        display: grid;
+        gap: 12px;
+      }
+
+      .timeline-item {
+        display: grid;
+        grid-template-columns: 130px minmax(0, 1fr);
+        gap: 16px;
+        padding: 16px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fbfcfb;
+      }
+
+      .timeline-item strong {
+        color: var(--green-dark);
+      }
+
+      .callout {
+        padding: clamp(26px, 4vw, 44px);
+        border-radius: 8px;
+        background: var(--green);
+        color: white;
+      }
+
+      .callout h2 {
+        max-width: 900px;
+      }
+
+      .callout p {
+        max-width: 920px;
+        margin-bottom: 0;
+        color: rgba(255, 255, 255, 0.82);
+        font-size: 18px;
+      }
+
+      @media (max-width: 1040px) {
+        .grid-4,
+        .grid-3,
+        .architecture,
+        .highlight {
+          grid-template-columns: 1fr;
+        }
+
+        .metric-strip {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+
+        .nav {
+          justify-content: flex-start;
+        }
+
+        .hero {
+          min-height: 720px;
+          padding-top: 96px;
+        }
+
+        .grid-2,
+        .grid-4,
+        .metric-strip {
+          grid-template-columns: 1fr;
+        }
+
+        .map-row,
+        .timeline-item {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#top" aria-label="Proof-of-Fandom Ticket">
+        <span class="brand-mark" aria-hidden="true">P</span>
+        <span>Proof-of-Fandom Ticket</span>
+      </a>
+      <nav class="nav" aria-label="문서 섹션">
+        <a href="#why">제품 가치</a>
+        <a href="#giwa">GIWA 적용</a>
+        <a href="#scalping">암표 방지</a>
+        <a href="#fraud">거래 사기 예방</a>
+        <a href="#nft">NFT 경험</a>
+        <a href="#advantages">확장 장점</a>
+      </nav>
+    </header>
+
+    <section class="hero" id="top">
+      <div class="hero-inner">
+        <p class="eyebrow">Verified Fan Ticketing Infrastructure</p>
+        <h1>검증된 팬만 사고, 정가 이하로만 양도하는 티켓 플랫폼</h1>
+        <p class="hero-copy">
+          Proof-of-Fandom Ticket은 GIWA Chain의 Verified Address, UP ID,
+          온체인 티켓 NFT, 공식 양도 마켓을 결합해 암표와 거래 사기를 줄이고
+          팬에게 소유감 있는 디지털 티켓 경험을 제공합니다.
+        </p>
+        <div class="hero-actions">
+          <a class="button primary" href="#why">제품 가치 보기</a>
+          <a class="button" href="#giwa">GIWA 구조 보기</a>
+        </div>
+
+        <div class="metric-strip" aria-label="핵심 제품 지표">
+          <div>
+            <strong>Verified</strong>
+            <span>Dojang 기반 팬 검증</span>
+          </div>
+          <div>
+            <strong>Face Value</strong>
+            <span>정가 이하 양도 강제</span>
+          </div>
+          <div>
+            <strong>Onchain</strong>
+            <span>티켓 소유권과 이력 기록</span>
+          </div>
+          <div>
+            <strong>Live QR</strong>
+            <span>캡처 이미지 입장 차단</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <main>
+      <section id="why">
+        <div class="section-inner">
+          <p class="eyebrow">Why This Product Matters</p>
+          <h2>창의적이면서도 현실적인 이유</h2>
+          <p class="lead">
+            기존 티켓 시장의 문제는 단순히 “티켓을 디지털로 만든다”로 해결되지
+            않습니다. 구매 자격, 양도 가격, 소유권, 입장 상태가 서로 다른
+            시스템에 흩어져 있기 때문입니다. 이 제품은 이 네 가지를 하나의
+            온체인 정책 레이어로 묶습니다.
+          </p>
+
+          <div class="grid-2">
+            <div class="card problem-card">
+              <span class="tag red">현실 문제</span>
+              <h3>인기 경기 티켓은 빠르게 사라지고, 팬은 불투명한 거래에 노출됩니다.</h3>
+              <p>
+                봇과 대량 계정은 티켓을 먼저 확보하고, 실제 팬은 정가보다 비싼
+                외부 거래로 밀려납니다. 거래 상대가 누구인지, 티켓이 진짜인지,
+                이미 입장 처리된 티켓은 아닌지 확인하기 어렵습니다.
+              </p>
+            </div>
+            <div class="card solution-card">
+              <span class="tag">제품 해법</span>
+              <h3>티켓을 검증된 팬의 소유권으로 발급하고, 양도 조건을 코드로 강제합니다.</h3>
+              <p>
+                구매자와 양수자는 Verified Address여야 하고, 양도는 공식 마켓에서
+                정가 이하로만 가능합니다. 티켓 NFT는 좌석, 정가, 양도 마감,
+                사용 상태를 함께 담아 거래 조건을 투명하게 만듭니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <p class="eyebrow">Creativity And Practicality</p>
+          <h2>기술 자체보다 “운영 가능한 규칙”에 초점을 맞춘 제품</h2>
+          <div class="grid-4">
+            <div class="card">
+              <span class="tag">창의성</span>
+              <h3>팬 검증과 티켓 소유권의 결합</h3>
+              <p>
+                NFT 티켓을 단순 수집품이 아니라 Verified Address와 연결된
+                입장 권리로 사용합니다. 팬 인증과 티켓 정책이 한 흐름 안에서
+                동작합니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag blue">실용성</span>
+              <h3>구단 정책을 코드로 강제</h3>
+              <p>
+                정가 이하 양도, 양도 횟수 제한, 양도 마감, 사용 완료 후 양도
+                금지 같은 규칙을 스마트 컨트랙트가 직접 검사합니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag gold">사용성</span>
+              <h3>주소 대신 UP ID 표시</h3>
+              <p>
+                사용자는 긴 지갑 주소보다 <strong>minjun.up.id</strong> 같은
+                이름을 더 쉽게 이해합니다. 거래 상대 식별이 자연스러워집니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag red">운영성</span>
+              <h3>이력 기반 부정 거래 추적</h3>
+              <p>
+                구매, 양도, 사용 처리가 이벤트로 남기 때문에 운영자는 이상 거래
+                패턴을 추적하고 정책을 개선할 수 있습니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="giwa">
+        <div class="section-inner">
+          <p class="eyebrow">GIWA Chain Infrastructure</p>
+          <h2>GIWA Chain과 관련 인프라를 사용해 문제를 해결하는 방식</h2>
+          <p class="lead">
+            이 제품은 GIWA Chain을 단순한 배포 환경으로만 사용하지 않습니다.
+            Dojang, Verified Address, UP ID, EAS, Flashblocks를 각각 다른 문제에
+            대응하는 제품 구성 요소로 사용합니다.
+          </p>
+
+          <div class="architecture">
+            <div class="flow">
+              <div class="flow-step">
+                <strong>Dojang Verified Address로 구매 자격 확인</strong>
+                구매자와 양수자가 검증된 주소인지 컨트랙트에서 직접 확인합니다.
+              </div>
+              <div class="flow-step">
+                <strong>Ticket NFT로 좌석 권리 발급</strong>
+                경기, 좌석, 정가, 양도 마감, 사용 상태를 NFT에 연결합니다.
+              </div>
+              <div class="flow-step">
+                <strong>공식 마켓만 양도 허용</strong>
+                개인 간 임의 전송을 막고, 가격과 수신자 조건을 검사합니다.
+              </div>
+              <div class="flow-step">
+                <strong>GateVerifier로 입장 상태 확정</strong>
+                동적 QR과 서명 검증을 통해 현재 소유자만 입장 처리합니다.
+              </div>
+            </div>
+
+            <div class="system-map">
+              <div class="map-row">
+                <strong>GIWA Chain</strong>
+                <span>티켓 발급, 양도, 입장 처리 트랜잭션이 기록되는 실행 환경입니다.</span>
+              </div>
+              <div class="map-row">
+                <strong>Dojang</strong>
+                <span>지갑이 검증된 주소인지 확인해 봇과 무분별한 계정을 줄입니다.</span>
+              </div>
+              <div class="map-row">
+                <strong>UP ID</strong>
+                <span>팬을 긴 주소가 아니라 사람이 읽기 쉬운 이름으로 표시합니다.</span>
+              </div>
+              <div class="map-row">
+                <strong>EAS</strong>
+                <span>검증 기록의 원본 계층으로, 운영 감사와 신뢰 추적의 기반이 됩니다.</span>
+              </div>
+              <div class="map-row">
+                <strong>Flashblocks</strong>
+                <span>예매와 양도 직후 빠른 상태 반영 UX를 제공할 수 있습니다.</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="scalping">
+        <div class="section-inner">
+          <p class="eyebrow">Anti Scalping</p>
+          <h2>현실의 암표상 문제를 줄이는 구조</h2>
+          <p class="lead">
+            암표 문제는 구매 단계, 양도 단계, 입장 단계가 모두 느슨할 때
+            발생합니다. Proof-of-Fandom Ticket은 각 단계마다 우회하기 어려운
+            정책을 배치합니다.
+          </p>
+
+          <div class="grid-3">
+            <div class="card">
+              <span class="tag red">구매 단계</span>
+              <h3>검증된 팬만 예매</h3>
+              <p>
+                미검증 주소는 구매 트랜잭션 자체가 실패합니다. 티켓 확보의
+                첫 단계부터 봇성 계정과 대량 지갑을 줄입니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag red">양도 단계</span>
+              <h3>정가 이하만 등록</h3>
+              <p>
+                티켓 NFT에 저장된 정가보다 높은 가격은 마켓 등록이 되지 않습니다.
+                “시세를 붙여 되파는 구조”를 코드로 제한합니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag red">전송 단계</span>
+              <h3>공식 마켓 외 전송 차단</h3>
+              <p>
+                티켓 소유자가 마음대로 다른 주소에 보내는 경로를 막습니다.
+                양도는 반드시 정책 검사를 거치는 공식 마켓을 통과합니다.
+              </p>
+            </div>
+          </div>
+
+          <div class="timeline" style="margin-top: 18px">
+            <div class="timeline-item">
+              <strong>Before</strong>
+              <span>외부 채팅, 중고 거래, 캡처 이미지, 수동 송금으로 가격과 진위 확인이 불투명합니다.</span>
+            </div>
+            <div class="timeline-item">
+              <strong>After</strong>
+              <span>검증된 주소, 정가 이하 양도, 온체인 소유권, 사용 상태가 하나의 정책으로 연결됩니다.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="fraud">
+        <div class="section-inner">
+          <p class="eyebrow">Fraud Prevention</p>
+          <h2>거래 사기를 예방하는 방식</h2>
+          <div class="grid-2">
+            <div class="card">
+              <span class="tag">진짜 티켓 확인</span>
+              <h3>티켓의 현재 소유자를 온체인에서 확인</h3>
+              <p>
+                구매자는 토큰 ID와 소유자 정보를 확인할 수 있습니다. 판매자가
+                실제 소유자가 아니면 마켓 등록과 판매가 성립하지 않습니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag">중복 판매 차단</span>
+              <h3>한 티켓은 하나의 현재 소유자만 가집니다.</h3>
+              <p>
+                같은 좌석을 여러 명에게 파는 방식은 온체인 소유권과 마켓 상태에서
+                바로 드러납니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag">캡처 QR 방어</span>
+              <h3>입장 QR은 짧은 시간만 유효합니다.</h3>
+              <p>
+                QR에는 현재 소유자, 만료 시간, nonce가 포함됩니다. 스크린샷을
+                전달하더라도 현재 소유자와 만료 조건을 통과해야 합니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag">입장 완료 후 거래 차단</span>
+              <h3>사용된 티켓은 다시 팔 수 없습니다.</h3>
+              <p>
+                입장 처리가 끝나면 NFT 상태가 Used로 바뀌고, 양도와 재사용
+                시도가 실패합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="nft">
+        <div class="dark-panel">
+          <div class="highlight">
+            <div>
+              <p class="eyebrow">NFT Experience</p>
+              <h2>NFT는 팬에게 기능과 감정적 만족을 동시에 제공합니다.</h2>
+              <p>
+                이 제품에서 NFT는 단순한 이미지가 아닙니다. 경기장에 들어갈 수
+                있는 권리이자, 사용 후에는 팬의 관람 기록으로 남는 디지털 티켓입니다.
+                팬은 “내가 이 경기에 갔다”는 기억을 지갑 안에 소장할 수 있습니다.
+              </p>
+              <p>
+                티켓 NFT는 경기, 좌석, 팀, 입장 상태, 양도 이력을 담을 수 있어
+                시즌별 팬 여정, 멤버십 혜택, 구단 리워드와 연결되기 쉽습니다.
+              </p>
+            </div>
+
+            <div class="ticket-preview" aria-label="NFT 티켓 예시">
+              <div class="ticket-line">
+                <span>Match</span>
+                <strong>LG Twins vs Doosan Bears</strong>
+              </div>
+              <div class="ticket-line">
+                <span>Seat</span>
+                <strong>1루 내야 2열 4번</strong>
+              </div>
+              <div class="ticket-line">
+                <span>Owner</span>
+                <strong>minjun.up.id</strong>
+              </div>
+              <div class="ticket-line">
+                <span>Status</span>
+                <strong>입장 가능</strong>
+              </div>
+              <div class="qr-grid" aria-hidden="true">
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+                <i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="section-inner">
+          <p class="eyebrow">Fan Satisfaction</p>
+          <h2>사용자에게 주는 즐거움과 만족도</h2>
+          <div class="grid-3">
+            <div class="card">
+              <span class="tag gold">소유감</span>
+              <h3>내 지갑에 남는 경기 기억</h3>
+              <p>
+                종이 티켓이나 앱 바코드는 사라지지만, NFT 티켓은 관람 기록으로
+                남길 수 있습니다. 팬의 시즌 히스토리가 축적됩니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag gold">안심감</span>
+              <h3>정가 이하와 검증된 상대</h3>
+              <p>
+                구매자는 터무니없는 가격과 가짜 티켓 걱정을 줄일 수 있습니다.
+                거래 상대는 검증된 주소와 UP ID로 표시됩니다.
+              </p>
+            </div>
+            <div class="card">
+              <span class="tag gold">참여감</span>
+              <h3>팬 활동과 리워드로 확장</h3>
+              <p>
+                누적 관람, 특정 구단 응원, 시즌권 연동, 굿즈 우선권 같은 혜택을
+                NFT 보유 이력과 연결할 수 있습니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="advantages">
+        <div class="section-inner">
+          <p class="eyebrow">Additional Advantages</p>
+          <h2>추가적인 제품 장점</h2>
+          <div class="grid-4">
+            <div class="card">
+              <h3>구단 운영 효율</h3>
+              <p>
+                좌석별 정책, 양도 마감, 사용 상태를 코드로 관리하면 운영팀의
+                수동 검수 부담이 줄어듭니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>데이터 기반 정책</h3>
+              <p>
+                양도 빈도, 가격, 입장 완료 여부를 분석해 구단별 정책을 더 정교하게
+                설계할 수 있습니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>파트너 확장성</h3>
+              <p>
+                예매처, 구단, 경기장, 굿즈몰, 멤버십 프로그램이 같은 티켓 소유권
+                데이터를 기준으로 연결될 수 있습니다.
+              </p>
+            </div>
+            <div class="card">
+              <h3>개인정보 최소화</h3>
+              <p>
+                제품은 사용자의 민감한 개인정보를 직접 저장하지 않고, Verified
+                여부만 참조해 정책을 집행합니다.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="callout">
+          <p class="eyebrow">Product Summary</p>
+          <h2>Proof-of-Fandom Ticket은 티켓 시장의 신뢰 문제를 온체인 정책으로 바꾸는 제품입니다.</h2>
+          <p>
+            팬은 정가와 진위를 신뢰하고, 구단은 암표와 부정 입장을 줄이며,
+            파트너사는 검증된 티켓 소유권을 기반으로 새로운 팬 경험을 만들 수
+            있습니다. GIWA Chain의 신원 검증, 이름 서비스, 빠른 트랜잭션 경험은
+            이 구조를 실제 서비스 수준으로 끌어올리는 기반이 됩니다.
+          </p>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
