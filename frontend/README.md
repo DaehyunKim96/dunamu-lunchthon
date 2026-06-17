@@ -7,14 +7,20 @@ npm install
 npm run dev
 ```
 
-## 주요 화면
+## 탭 구조
 
-- **예매** — KBO 경기 리스트(구단 엠블럼·날짜·배지) → 좌석맵 → 검증 후 정가 예매
-- **양도** — 정가 이하로만 거래되는 안심 양도 마켓
-- **내 컬렉션** — 예매·양도받은 입장권이 **구단별 한정판 NFT 카드**로 발급
-  - tokenId 기반으로 구단 컬러·등번호·선수명·포지션·레어도(COMMON~LEGENDARY)·시리얼이 결정적으로 생성
-  - 상위 레어도는 홀로그램 포일 효과, 카드 뒤집기로 입장용 LIVE QR 표시
+| 탭 | 설명 |
+|----|------|
+| **예매** | 구단 공식 발행 1차 티켓. 행의 `예매하기` → 좌석 선택 모달 → 온체인 결제 팝업(`PrimaryTicketSale.purchase()`)으로 NFT 발급 |
+| **거래소** | 정가 이하 2차 양도(티켓베이 스타일). 필터 사이드바 + 매물 리스트 + 상세/구매 모달. `TicketTransferMarket` 에스크로로 온체인 정산 |
+| **내 티켓** | 보유 입장권을 구단별 한정판 **NFT 카드**로 보관. 레어도 홀로그램, 카드 플립 LIVE QR |
 
-현재 UI는 로컬 state로 예매·양도·입장을 시뮬레이션하는 mock입니다. GIWA Sepolia 연동 시
-`src/contracts/giwaSepolia.js`의 주소 환경변수를 채우고 `viem`/`wagmi` writeContract 호출로
-기존 handler를 교체하면 됩니다.
+## 지갑 연결 & Dojang 검증
+
+- `window.ethereum`(EIP-1193)으로 실제 지갑을 연결하고, GIWA Sepolia(`chainId 91342`)로 자동 전환/추가합니다.
+- GIWA Dojang `OnchainVerifier.isVerified(addr, UPBIT_KOREA)` 를 viem으로 **온체인 조회**해 검증 여부를 판단하고, 통과 시 `인증` 마크를 표시합니다.
+- 검증·발권·양도 경로는 `src/contracts/giwaSepolia.js`(verifier 주소/attester/ABI), 연결 로직은 `src/useWallet.js` 참고.
+- 지갑이 없는 리뷰 환경에서는 `?demo` 로 데모 계정 자동 진입, `?tab=market` 등으로 탭 딥링크가 가능합니다.
+
+현재 매매·양도·결제는 로컬 state로 온체인 트랜잭션을 시뮬레이션하는 mock입니다. 컨트랙트 배포 후
+`src/contracts/giwaSepolia.js` 주소를 채우고 `viem`/`wagmi` writeContract 호출로 교체하면 됩니다.
