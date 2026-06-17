@@ -1,13 +1,13 @@
 {
-  "name": "Proof-of-Fandom Ticket",
-  "short_name": "PoF Ticket",
-  "description": "검증된 팬만 사고, 정가 이하로만 양도하는 KBO 티켓",
+  "name": "직관 JIKGWAN · KBO 검증 티켓",
+  "short_name": "직관",
+  "description": "검증된 팬만, 정가 그대로. GIWA 블록체인 기반 KBO 검증 티켓",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#f5f7f5",
-  "theme_color": "#146b43",
+  "background_color": "#0e1b2e",
+  "theme_color": "#0e1b2e",
   "lang": "ko",
   "icons": [
     {
