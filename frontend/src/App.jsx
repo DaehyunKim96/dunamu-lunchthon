@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useWallet, shortAddr } from './useWallet'
+import { useWallet, shortAddr, METAMASK_INSTALL_URL } from './useWallet'
 import { giwaSepolia } from './contracts/giwaSepolia'
 
 const EXPLORER = giwaSepolia.blockExplorers.default.url
@@ -226,7 +226,7 @@ function WalletChip({ wallet }) {
 
 /* ── 인증 배너 (예매 탭 상단) ─────────────────────────────────── */
 function VerifyBanner({ wallet }) {
-  const { status, verified, verifying, address, handle, mode } = wallet
+  const { status, verified, verifying, address, handle, mode, hasInjectedWallet } = wallet
   const connected = status === 'connected'
   let tone = 'idle'
   let title = '지갑을 연결하고 검증된 팬으로 예매하세요'
@@ -242,6 +242,12 @@ function VerifyBanner({ wallet }) {
       <div className="vb-text">
         <strong>{title}{mode === 'demo' && <span className="chip-demo">데모</span>}</strong>
         <span>{desc}</span>
+        {!connected && status !== 'wrong-network' && (
+          <span className="vb-subaction">
+            {!hasInjectedWallet && <a href={METAMASK_INSTALL_URL} target="_blank" rel="noreferrer">MetaMask 설치 ↗</a>}
+            <button type="button" className="link-button" onClick={wallet.enterDemo}>지갑 없이 데모로 보기</button>
+          </span>
+        )}
       </div>
       <div className="vb-action">
         {!connected ? <button className="primary-button slim" type="button" onClick={wallet.connect}>지갑 연결</button>
@@ -511,6 +517,10 @@ export default function App() {
     const id = window.setTimeout(() => setToast(null), 3400)
     return () => window.clearTimeout(id)
   }, [toast])
+  useEffect(() => {
+    if (wallet.error) showToast(wallet.error, 'warn')
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet.error])
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
     if (params.has('demo')) wallet.enterDemo()

@@ -60,6 +60,7 @@ export const pofTicketContracts = {
  */
 export const dojangVerifier = import.meta.env.VITE_VERIFIER_ADDRESS || giwaDojang.dojangScroll
 export const upbitKoreaAttester = giwaDojang.attesters.upbitKorea
+export const testnetFaucetAttester = giwaDojang.attesters.testnetFaucet
 
 export const verifierAbi = [
   {
@@ -79,12 +80,21 @@ export const publicClient = createPublicClient({
   transport: http(undefined, { timeout: 12_000, retryCount: 1 }),
 })
 
-// 주어진 주소가 Upbit Korea attester 기준 Dojang 검증을 통과했는지 온체인 조회
+// 실서비스 기준 attester는 Upbit Korea지만, GIWA Sepolia 테스트넷에서는
+// GIWA Playground의 testnet faucet 플로우로 Dojang을 발급받는 경우가 많아
+// 두 attester 중 하나라도 통과하면 "검증된 팬"으로 인정한다.
 export async function checkDojangVerified(address) {
-  return publicClient.readContract({
-    address: dojangVerifier,
-    abi: verifierAbi,
-    functionName: 'isVerified',
-    args: [address, upbitKoreaAttester],
-  })
+  const results = await Promise.all(
+    [upbitKoreaAttester, testnetFaucetAttester].map((attesterId) =>
+      publicClient
+        .readContract({
+          address: dojangVerifier,
+          abi: verifierAbi,
+          functionName: 'isVerified',
+          args: [address, attesterId],
+        })
+        .catch(() => false)
+    )
+  )
+  return results.some(Boolean)
 }

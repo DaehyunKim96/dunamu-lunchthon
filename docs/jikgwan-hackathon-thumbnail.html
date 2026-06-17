@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=1600, initial-scale=1" />
+  <title>직관 Hackathon Thumbnail</title>
+  <style>
+    :root {
+      --navy: #0e1b2e;
+      --navy-2: #16263d;
+      --ink: #14161c;
+      --muted: #707684;
+      --line: #e4e7ee;
+      --red: #e8131d;
+      --red-dark: #b90e16;
+      --gold: #d8a32b;
+      --green: #16a34a;
+      --blue: #1763c4;
+      --paper: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      width: 1600px;
+      height: 900px;
+      margin: 0;
+      overflow: hidden;
+      background: #0b1423;
+      font-family: "Apple SD Gothic Neo", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--paper);
+    }
+
+    .canvas {
+      position: relative;
+      width: 1600px;
+      height: 900px;
+      overflow: hidden;
+      background-image:
+        linear-gradient(90deg, rgba(8, 14, 26, 0.96) 0%, rgba(8, 14, 26, 0.82) 31%, rgba(8, 14, 26, 0.45) 62%, rgba(8, 14, 26, 0.2) 100%),
+        linear-gradient(0deg, rgba(8, 14, 26, 0.86) 0%, rgba(8, 14, 26, 0.12) 58%, rgba(8, 14, 26, 0.28) 100%),
+        url("../frontend/public/assets/ballpark-ticket-gate.png");
+      background-size: cover;
+      background-position: center;
+    }
+
+    .canvas::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      pointer-events: none;
+    }
+
+    .brand {
+      position: absolute;
+      top: 54px;
+      left: 76px;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 22px 14px 14px;
+      border: 1px solid rgba(255, 255, 255, 0.56);
+      border-radius: 24px;
+      background: rgba(246, 247, 249, 0.92);
+      box-shadow: 0 24px 54px rgba(0, 0, 0, 0.24);
+      backdrop-filter: blur(14px);
+    }
+
+    .brand-mark {
+      width: 68px;
+      height: 68px;
+      border-radius: 20px;
+      display: grid;
+      place-items: center;
+      background: var(--navy);
+      box-shadow: 0 16px 34px rgba(14, 27, 46, 0.18);
+    }
+
+    .brand-mark svg {
+      width: 42px;
+      height: 42px;
+    }
+
+    .brand-copy strong {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 18px;
+      color: var(--navy);
+      font-size: 46px;
+      font-weight: 950;
+      line-height: 0.95;
+    }
+
+    .brand-copy em {
+      color: var(--red);
+      font-style: normal;
+      font-size: 20px;
+      font-weight: 950;
+      letter-spacing: 0.34em;
+    }
+
+    .headline {
+      position: absolute;
+      left: 76px;
+      top: 206px;
+      width: 640px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      height: 34px;
+      padding: 0 14px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: #ff7b81;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.18);
+    }
+
+    h1 {
+      margin: 24px 0 20px;
+      font-size: 72px;
+      line-height: 1.05;
+      font-weight: 950;
+    }
+
+    .subtitle {
+      margin: 0;
+      width: 590px;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 22px;
+      line-height: 1.48;
+      font-weight: 650;
+    }
+
+    .proof-row {
+      position: absolute;
+      left: 76px;
+      bottom: 78px;
+      display: grid;
+      grid-template-columns: repeat(3, 176px);
+      gap: 10px;
+      padding: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 18px;
+      background: rgba(8, 14, 26, 0.42);
+      backdrop-filter: blur(16px);
+    }
+
+    .proof {
+      min-height: 92px;
+      padding: 16px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .proof strong {
+      display: block;
+      margin-bottom: 7px;
+      color: #ffffff;
+      font-size: 22px;
+      font-weight: 950;
+    }
+
+    .proof span {
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .desktop {
+      position: absolute;
+      right: 248px;
+      top: 132px;
+      width: 700px;
+      height: 506px;
+      border: 1px solid rgba(255, 255, 255, 0.48);
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 34px 88px rgba(0, 0, 0, 0.42);
+      color: var(--ink);
+      overflow: hidden;
+      transform: perspective(1100px) rotateY(-8deg) rotateX(3deg);
+      transform-origin: center;
+    }
+
+    .desktop-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 64px;
+      padding: 0 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.86);
+    }
+
+    .desktop-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 950;
+      color: var(--navy);
+    }
+
+    .desktop-brand i {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--navy);
+      font-style: normal;
+    }
+
+    .desktop-brand i svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .nav-tabs {
+      display: inline-flex;
+      gap: 4px;
+      padding: 4px;
+      border-radius: 11px;
+      background: #f1f3f7;
+      font-size: 13px;
+      font-weight: 900;
+    }
+
+    .nav-tabs span {
+      padding: 8px 14px;
+      border-radius: 8px;
+      color: var(--muted);
+    }
+
+    .nav-tabs .active {
+      background: #fff;
+      color: var(--navy);
+      box-shadow: 0 4px 12px rgba(18, 28, 45, 0.08);
+    }
+
+    .wallet {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      height: 34px;
+      padding: 0 12px;
+      border-radius: 999px;
+      background: #e7f6ec;
+      color: #0f7a37;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .wallet::before,
+    .verified::before {
+      content: "✓";
+      display: grid;
+      place-items: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--green);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .desktop-body {
+      display: grid;
+      grid-template-columns: 1.25fr 0.9fr;
+      gap: 18px;
+      padding: 22px;
+      background: linear-gradient(180deg, #f7f8fb, #eef1f6);
+      height: calc(100% - 64px);
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 16px 38px rgba(18, 28, 45, 0.08);
+      overflow: hidden;
+    }
+
+    .match-card {
+      padding: 20px;
+    }
+
+    .match-date {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      height: 26px;
+      padding: 0 11px;
+      border-radius: 8px;
+      background: #eef5ff;
+      color: var(--blue);
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .teams {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .team {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 950;
+      color: var(--navy);
+    }
+
+    .crest {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 950;
+      box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.6);
+    }
+
+    .crest.red { background: #c30452; }
+    .crest.navy { background: #1a1748; }
+    .vs {
+      color: #aab1bc;
+      font-size: 13px;
+      font-weight: 950;
+    }
+
+    .seat-map {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      gap: 7px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f3f5f9;
+    }
+
+    .seat {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid #dce1ea;
+    }
+
+    .seat.sold { background: #d8dce3; }
+    .seat.pick { background: var(--red); border-color: var(--red); box-shadow: 0 8px 16px rgba(232, 19, 29, 0.24); }
+
+    .summary {
+      display: grid;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .verified {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      width: max-content;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: #e7f6ec;
+      color: #0f7a37;
+      font-size: 12px;
+      font-weight: 950;
+    }
+
+    .summary h2 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 28px;
+      line-height: 1.18;
+      font-weight: 950;
+    }
+
+    .summary-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 13px;
+      font-weight: 850;
+      color: var(--muted);
+    }
+
+    .summary-list li {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding-bottom: 9px;
+      border-bottom: 1px dashed var(--line);
+    }
+
+    .summary-list strong {
+      color: var(--ink);
+    }
+
+    .cta {
+      display: grid;
+      place-items: center;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--red);
+      color: #fff;
+      font-size: 15px;
+      font-weight: 950;
+      box-shadow: 0 16px 28px rgba(232, 19, 29, 0.24);
+    }
+
+    .timeline {
+      display: grid;
+      gap: 9px;
+      padding-top: 3px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 850;
+    }
+
+    .step::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.14);
+    }
+
+    .ticket {
+      position: absolute;
+      right: 88px;
+      bottom: 58px;
+      width: 298px;
+      height: 560px;
+      border-radius: 28px;
+      padding: 0;
+      background: #eef1f6;
+      border: 1px solid rgba(255, 255, 255, 0.72);
+      box-shadow: 0 34px 86px rgba(0, 0, 0, 0.48);
+      transform: rotate(4deg);
+      overflow: hidden;
+    }
+
+    .ticket img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: top center;
+    }
+
+    .floating {
+      position: absolute;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-height: 46px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.13);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.22);
+      backdrop-filter: blur(16px);
+      color: #fff;
+      font-size: 14px;
+      font-weight: 950;
+    }
+
+    .floating::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 5px rgba(22, 163, 74, 0.18);
+    }
+
+    .f1 { right: 170px; top: 62px; }
+    .f2 { right: 556px; bottom: 198px; }
+    .f3 { right: 330px; bottom: 54px; }
+
+    .chain-lines {
+      position: absolute;
+      right: 250px;
+      top: 354px;
+      width: 350px;
+      height: 190px;
+      pointer-events: none;
+      opacity: 0.78;
+    }
+
+    .chain-lines path {
+      fill: none;
+      stroke: rgba(64, 150, 255, 0.72);
+      stroke-width: 2;
+      filter: drop-shadow(0 0 8px rgba(64, 150, 255, 0.76));
+    }
+  </style>
+</head>
+<body>
+  <main class="canvas" aria-label="직관 해커톤 대표 썸네일">
+    <section class="brand">
+      <div class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 48 48" role="img">
+          <circle cx="24" cy="24" r="17.2" fill="#fff" />
+          <path d="M14.5 12.7c-5.7 6.3-5.7 16.3 0 22.6" fill="none" stroke="#e8131d" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="1.8 6.4" />
+          <path d="M33.5 12.7c5.7 6.3 5.7 16.3 0 22.6" fill="none" stroke="#e8131d" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="1.8 6.4" />
+        </svg>
+      </div>
+      <div class="brand-copy">
+        <strong>직관 <em>JIKGWAN</em></strong>
+      </div>
+    </section>
+
+    <section class="headline">
+      <div class="eyebrow">GIWA Verified Ticketing</div>
+      <h1>암표 걱정 없는<br />진짜 직관.</h1>
+      <p class="subtitle">검증 팬만 예매하고, NFT 티켓으로 보관하고, 정가 이하로 안전하게 양도하는 KBO 티켓 플랫폼</p>
+    </section>
+
+    <section class="proof-row" aria-label="핵심 가치">
+      <div class="proof">
+        <strong>검증 팬</strong>
+        <span>Dojang 지갑 인증</span>
+      </div>
+      <div class="proof">
+        <strong>내 티켓</strong>
+        <span>NFT 카드로 보관</span>
+      </div>
+      <div class="proof">
+        <strong>안심 양도</strong>
+        <span>정가 이하만 허용</span>
+      </div>
+    </section>
+
+    <section class="desktop" aria-label="직관 제품 화면">
+      <div class="desktop-top">
+        <div class="desktop-brand">
+          <i aria-hidden="true">
+            <svg viewBox="0 0 48 48">
+              <circle cx="24" cy="24" r="17.2" fill="#fff" />
+              <path d="M14.5 12.7c-5.7 6.3-5.7 16.3 0 22.6" fill="none" stroke="#e8131d" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="1.8 6.4" />
+              <path d="M33.5 12.7c5.7 6.3 5.7 16.3 0 22.6" fill="none" stroke="#e8131d" stroke-width="2.8" stroke-linecap="round" stroke-dasharray="1.8 6.4" />
+            </svg>
+          </i>
+          직관
+        </div>
+        <div class="nav-tabs">
+          <span class="active">예매</span>
+          <span>거래소</span>
+          <span>내 티켓</span>
+        </div>
+        <div class="wallet">minjun.up.id</div>
+      </div>
+      <div class="desktop-body">
+        <div class="panel match-card">
+          <div class="match-date">
+            <span>06.19 금 18:30 · 서울 잠실야구장</span>
+            <span class="badge">온체인 발권</span>
+          </div>
+          <div class="teams">
+            <div class="team"><span class="crest red">LG</span>LG</div>
+            <div class="vs">VS</div>
+            <div class="team"><span class="crest navy">D</span>두산</div>
+          </div>
+          <div class="seat-map">
+            <span class="seat"></span><span class="seat"></span><span class="seat sold"></span><span class="seat sold"></span><span class="seat"></span><span class="seat pick"></span><span class="seat"></span><span class="seat"></span>
+            <span class="seat"></span><span class="seat pick"></span><span class="seat"></span><span class="seat"></span><span class="seat sold"></span><span class="seat"></span><span class="seat sold"></span><span class="seat"></span>
+            <span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat sold"></span><span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat pick"></span>
+            <span class="seat sold"></span><span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat"></span><span class="seat sold"></span><span class="seat"></span>
+          </div>
+        </div>
+        <div class="panel summary">
+          <div class="verified">Dojang 인증 완료</div>
+          <h2>1루 테이블석<br />3좌석 선택</h2>
+          <ul class="summary-list">
+            <li><span>예매가</span><strong>54,000원</strong></li>
+            <li><span>정책</span><strong>양도 정가 이하</strong></li>
+            <li><span>네트워크</span><strong>GIWA Sepolia</strong></li>
+          </ul>
+          <div class="cta">검증 후 예매</div>
+          <div class="timeline">
+            <span class="step">Verified Address 확인</span>
+            <span class="step">PrimaryTicketSale.purchase</span>
+            <span class="step">NFT Ticket 발급</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <svg class="chain-lines" viewBox="0 0 350 190" aria-hidden="true">
+      <path d="M14 32 C118 8 196 42 334 24" />
+      <path d="M6 92 C102 58 198 78 326 84" />
+      <path d="M24 154 C132 124 216 142 342 130" />
+    </svg>
+
+    <section class="ticket" aria-label="NFT 티켓 카드">
+      <img src="../frontend/public/assets/jikgwan-nft-ticket-card.png" alt="직관 NFT 티켓 카드" />
+    </section>
+
+    <div class="floating f1">GIWA Verified</div>
+    <div class="floating f2">정가 이하 안심 양도</div>
+    <div class="floating f3">캡처 방지 Live QR</div>
+  </main>
+</body>
+</html>

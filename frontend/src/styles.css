@@ -576,6 +576,10 @@ dd { margin: 0; font-size: 13px; font-weight: 800; }
 .vb-text { display: grid; gap: 3px; flex: 1; min-width: 0; }
 .vb-text strong { display: flex; align-items: center; gap: 8px; font-size: 15.5px; font-weight: 850; }
 .vb-text span { color: var(--muted); font-size: 13.5px; }
+.vb-subaction { display: flex; align-items: center; gap: 10px; margin-top: 2px; }
+.vb-subaction a { color: var(--primary); font-size: 12.5px; font-weight: 700; text-decoration: none; }
+.link-button { background: none; border: none; padding: 0; color: var(--muted); font-size: 12.5px; font-weight: 600; text-decoration: underline; cursor: pointer; }
+.link-button:hover { color: var(--ink); }
 .vb-action { flex: none; }
 
 /* ── 모달 시스템 ──────────────────────────────────────────────── */
