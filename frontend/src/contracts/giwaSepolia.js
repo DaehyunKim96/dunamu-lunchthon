@@ -1,4 +1,4 @@
-import { createPublicClient, http } from 'viem'
+import { createPublicClient, createWalletClient, custom, decodeEventLog, http, keccak256, stringToHex } from 'viem'
 
 export const giwaSepolia = {
   id: 91342,
@@ -98,3 +98,92 @@ export async function checkDojangVerified(address) {
   )
   return results.some(Boolean)
 }
+
+/* ── 온체인 예매/양도 (실제 트랜잭션) ──────────────────────────
+ * contract/scripts/register-demo-seats.cjs 가 등록한 좌석과 동일한 규칙으로
+ * gameId/seatId/가격(원→wei)을 계산해 PrimaryTicketSale/TicketTransferMarket를
+ * 직접 호출한다. 가격 환산은 1원 = 1e9 wei.
+ */
+export const KRW_TO_WEI = 1_000_000_000n
+export const krwToWei = (krw) => BigInt(krw) * KRW_TO_WEI
+export const idHash = (value) => keccak256(stringToHex(value))
+
+export function getWalletClient(provider, account) {
+  return createWalletClient({
+    chain: giwaSepolia,
+    transport: custom(provider),
+    account,
+  })
+}
+
+export function findEvent(abi, logs, eventName) {
+  for (const log of logs) {
+    try {
+      const decoded = decodeEventLog({ abi, data: log.data, topics: log.topics })
+      if (decoded.eventName === eventName) return decoded
+    } catch {
+      // log belongs to a different event/contract; skip
+    }
+  }
+  return null
+}
+
+export const primarySaleAbi = [
+  {
+    type: 'function',
+    name: 'seatKeyOf',
+    stateMutability: 'pure',
+    inputs: [
+      { name: 'gameId', type: 'bytes32' },
+      { name: 'seatId', type: 'bytes32' },
+    ],
+    outputs: [{ type: 'bytes32' }],
+  },
+  {
+    type: 'function',
+    name: 'purchase',
+    stateMutability: 'payable',
+    inputs: [{ name: 'seatKey', type: 'bytes32' }],
+    outputs: [{ name: 'tokenId', type: 'uint256' }],
+  },
+  {
+    type: 'event',
+    name: 'SeatPurchased',
+    inputs: [
+      { name: 'seatKey', type: 'bytes32', indexed: true },
+      { name: 'buyer', type: 'address', indexed: true },
+      { name: 'tokenId', type: 'uint256', indexed: true },
+      { name: 'priceWei', type: 'uint256', indexed: false },
+    ],
+  },
+]
+
+export const transferMarketAbi = [
+  {
+    type: 'function',
+    name: 'list',
+    stateMutability: 'nonpayable',
+    inputs: [
+      { name: 'tokenId', type: 'uint256' },
+      { name: 'priceWei', type: 'uint256' },
+    ],
+    outputs: [],
+  },
+  {
+    type: 'function',
+    name: 'buy',
+    stateMutability: 'payable',
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [],
+  },
+  {
+    type: 'event',
+    name: 'TicketTransferred',
+    inputs: [
+      { name: 'tokenId', type: 'uint256', indexed: true },
+      { name: 'seller', type: 'address', indexed: true },
+      { name: 'buyer', type: 'address', indexed: true },
+      { name: 'priceWei', type: 'uint256', indexed: false },
+    ],
+  },
+]

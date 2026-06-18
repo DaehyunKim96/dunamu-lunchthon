@@ -73,10 +73,11 @@ function IconQR() {
   )
 }
 
-/* ── 슬라이드 1 — 타이틀 / 직관 더블 미닝 ─────────────────────── */
+/* ── 슬라이드 3 — 타이틀 / 직관 더블 미닝 ─────────────────────── */
 function SlideTitle({ active }) {
   return (
     <Slide active={active} className="s-title">
+      <span className="d-kicker"><Seam /> 이 문제를 해결하기 위해 만든 플랫폼</span>
       <div className="wordmark">
         직관
         <span className="hanja">直觀</span>
@@ -86,15 +87,18 @@ function SlideTitle({ active }) {
       <div className="dual">
         <div className="cell">
           <span className="ko">직접 관람 <small>直觀</small></span>
-          <span className="en">경기장에서 직접 보는 일</span>
+          <span className="en">야구를 사랑하는 사람이 경기장의 열기를 직접 느끼는 일</span>
         </div>
         <div className="cell">
           <span className="ko">직관 <small>直觀</small></span>
-          <span className="en">Intuition · 본질을 꿰뚫는 통찰</span>
+          <span className="en">본질을 꿰뚫는 하나의 통찰 · Intuition</span>
         </div>
       </div>
 
-      <p className="tagline"><b>검증된 팬만, 정가 그대로.</b> &nbsp;GIWA 블록체인 기반 KBO 검증 티켓</p>
+      <p className="tagline">
+        현실의 문제를 꿰뚫는 <b>하나의 의도</b>가 있다면,<br />
+        AI와 함께 무엇이든 해결할 수 있다는 마음을 이름에 담았습니다.
+      </p>
     </Slide>
   )
 }
@@ -102,163 +106,173 @@ function SlideTitle({ active }) {
 /* ── 슬라이드 2 — 문제 (암표) ─────────────────────────────────── */
 function SlideProblem({ active }) {
   return (
-    <Slide active={active}>
+    <Slide active={active} className="s-problem">
       <span className="d-kicker"><Seam /> 우리가 풀려는 <b>현실의 문제</b></span>
-      <div className="s-grid">
-        <div className="s-head">
-          <h1 className="d-h1">프로야구는 뜨거워졌고,<br /><span className="d-hl">암표상</span>은 더 기승을 부립니다.</h1>
-          <div className="stat-row">
-            <div className="stat-card">
-              <div className="num">11<span>배</span></div>
-              <div className="cap">프로스포츠 암표 신고<br />2020 → 2025</div>
-            </div>
-            <div className="stat-card gold">
-              <div className="num">2.56<span>배</span></div>
-              <div className="cap">프로스포츠 티켓<br />정가 대비 거래가</div>
-            </div>
-            <div className="stat-card blue">
-              <div className="num">6.3<span>%</span></div>
-              <div className="cap">신고 중 실제<br />단속으로 이어진 비율</div>
-            </div>
-          </div>
-          <p className="source-tag">
-            출처 · 국회도서관 「Data &amp; Law」, 문체부 추산 — <a>청년일보 보도(2025)</a>
+      <div className="problem-grid">
+        <div className="problem-copy">
+          <h1 className="d-h1">
+            프로야구의 열기가 뜨거워질수록,<br />
+            <span className="d-hl">암표상</span>은 더 기승을 부립니다.
+          </h1>
+          <p className="problem-lead">
+            1만원짜리 티켓이 <b>15만원</b>에 거래되고,<br />
+            개막과 동시에 의심 게시물 <b>186건</b>이 수사 의뢰됐습니다.
           </p>
+          <blockquote className="fan-quote">
+            “야구에 진심인 팬으로서 꼭 풀고 싶었습니다.<br />
+            그리고 이 문제는 충분히 기술로 막을 수 있다고 판단했습니다.”
+          </blockquote>
         </div>
 
-        <div className="price-viz">
-          <div className="pv-title">⚾ 정가 vs 암표가</div>
-          <div className="bar-block">
-            <div className="bar-row">
-              <span className="bar-label">정가</span>
-              <div className="bar-track"><div className="bar-fill face">100%</div></div>
-            </div>
-            <div className="bar-row">
-              <span className="bar-label">암표가</span>
-              <div className="bar-track"><div className="bar-fill scalp">256%</div></div>
-            </div>
+        <figure className="article-card">
+          <div className="article-image">
+            <img
+              src="/assets/kbo-scalping-hankookilbo-2026.png"
+              alt="한국일보 프로야구 암표 전쟁 기사 화면"
+            />
+            <span className="article-stat"><b>15배</b><small>정가 대비 암표가</small></span>
           </div>
-          <p className="pv-foot">경찰 적발 의심 거래 <b>262,381건</b> — 그러나 막을 방법은 없었습니다.</p>
-        </div>
+          <figcaption>
+            한국일보 · 2026.04.01
+            <span>“1만원 티켓을 15만원에 판매… 프로야구 개막과 시작된 ‘암표 전쟁’”</span>
+          </figcaption>
+        </figure>
       </div>
-      <p className="punch">기술적으로 막을 수 있는데, <span className="d-hl">아무도 시도하지 않았습니다.</span></p>
     </Slide>
   )
 }
 
-/* ── 슬라이드 3 — 의도 (Intention) ───────────────────────────── */
+/* ── 슬라이드 1 — 의도 (Intention) ───────────────────────────── */
 function SlideIntent({ active }) {
   return (
     <Slide active={active} className="s-center">
-      <span className="d-kicker"><Seam /> 만드는 출발점</span>
+      <span className="d-kicker"><Seam /> 이번 해커톤의 출발점</span>
       <p className="intent-quote" style={{ marginTop: 26 }}>
-        AI가 모든 걸 실행해 주는 시대,<br />
-        인간에게 남는 건 <span className="mark">의도(Intention)</span> 입니다.
+        AI를 활용해<br />
+        <span className="mark">현실의 문제</span>를 풀고 싶었습니다.
       </p>
 
       <div className="intent-flow">
         <div className="intent-node gold">
-          <span className="ic">🎯</span>
-          <span className="tt">의도</span>
-          <span className="ds">진짜 팬에게만 표를</span>
+          <span className="intent-symbol">01</span>
+          <span className="tt">현실에서 발견한 문제</span>
+          <span className="ds">팬이 표를 구하지 못하는 암표 시장</span>
         </div>
         <span className="intent-arrow">→</span>
         <div className="intent-node">
-          <span className="ic">🤖</span>
-          <span className="tt">AI 실행</span>
-          <span className="ds">설계 · 코드 · 컨트랙트</span>
+          <span className="intent-symbol">02</span>
+          <span className="tt">사람의 의도</span>
+          <span className="ds">진짜 팬에게 정가로 표를 돌려주자</span>
         </div>
         <span className="intent-arrow">→</span>
         <div className="intent-node accent">
-          <span className="ic">⚾</span>
-          <span className="tt">직관 JIKGWAN</span>
-          <span className="ds">동작하는 프로토타입</span>
+          <span className="intent-symbol">AI</span>
+          <span className="tt">AI의 실행</span>
+          <span className="ds">리서치 · 설계 · 코드 · 컨트랙트</span>
         </div>
       </div>
 
       <p className="intent-sub">
-        저는 <b>풀고 싶은 문제와 의도</b> 하나만 들고, 나머지는 전적으로 AI에 맡겼습니다.<br />
-        그 과정에서 <b>블록체인으로 서비스를 만드는 법</b>, 그리고 PII 노출 없이 온체인 신원을 갖는
-        <b> GIWA Dojang</b>까지 — 빠르게 만들며 빠르게 배웠습니다.
+        저는 <b>풀고 싶은 문제와 의도 하나</b>만 들고,<br />
+        조사부터 서비스 설계와 구현까지 나머지는 전적으로 AI에 맡겼습니다.
       </p>
     </Slide>
   )
 }
 
-/* ── 슬라이드 4 — 솔루션 / 4기둥 ─────────────────────────────── */
+/* ── 슬라이드 4 — 솔루션 / Dojang의 차별점 ───────────────────── */
 function SlideSolution({ active }) {
-  const pillars = [
-    { no: '01', accent: '#ff5a4e', icon: <IconShield />, tt: '검증된 팬', ds: 'GIWA Dojang으로 인증된 지갑만 예매·양도. PII는 체인에 올리지 않습니다.', tag: 'OnchainVerifier' },
-    { no: '02', accent: '#4f9bff', icon: <IconNFT />, tt: '온체인 NFT 티켓', ds: '좌석은 NFT로 발급. 소유권·사용 상태가 투명하게 기록됩니다.', tag: 'BaseballTicketNFT' },
-    { no: '03', accent: '#e9b949', icon: <IconTag />, tt: '정가 이하 양도', ds: '정가를 넘는 가격은 컨트랙트가 거부. 암표와 부정 거래를 차단합니다.', tag: 'TransferMarket' },
-    { no: '04', accent: '#36d27a', icon: <IconQR />, tt: 'Live QR 입장', ds: '현재 소유자에게만 실시간 QR. 캡처·재사용 입장까지 막습니다.', tag: 'GateVerifier' },
-  ]
   return (
-    <Slide active={active}>
-      <span className="d-kicker"><Seam /> 해결책 — <b>직관 JIKGWAN</b></span>
-      <h1 className="d-h1" style={{ marginTop: 14 }}>검증된 팬을 위한 <span className="d-hl">안전한 직관 경험</span></h1>
-      <p className="solu-def">
-        <b>GIWA Dojang으로 검증된 팬</b>만 KBO 티켓을 예매·양도하고,
-        모든 좌석은 <b>온체인 NFT 티켓</b>으로 발급되는 블록체인 티켓 플랫폼.
-      </p>
-      <div className="pillars">
-        {pillars.map((p) => (
-          <div className="pillar" key={p.no} style={{ '--accent': p.accent }}>
-            <span className="p-no">{p.no}</span>
-            <span className="p-ic">{p.icon}</span>
-            <span className="p-tt">{p.tt}</span>
-            <span className="p-ds">{p.ds}</span>
-            <span className="p-tag">{p.tag}</span>
-          </div>
-        ))}
+    <Slide active={active} className="s-solution">
+      <span className="d-kicker"><Seam /> 한 가지 기술적 통찰</span>
+      <h1 className="solution-title">
+        일반 블록체인은 <span className="muted-word">지갑 주소</span>만 봅니다.<br />
+        GIWA Dojang은 <span className="d-hl-gold">검증된 사람</span>인지 확인합니다.
+      </h1>
+
+      <div className="dojang-flow">
+        <div className="dojang-step">
+          <span className="dojang-no">1</span>
+          <b>오프체인 본인확인</b>
+          <small>신뢰할 수 있는 발행자가 사용자를 확인</small>
+        </div>
+        <span className="dojang-arrow">→</span>
+        <div className="dojang-step privacy">
+          <span className="dojang-no">2</span>
+          <b>PII 없는 Verified Address</b>
+          <small>이름·전화번호는 체인에 공개하지 않음</small>
+        </div>
+        <span className="dojang-arrow">→</span>
+        <div className="dojang-step verify">
+          <span className="dojang-no">3</span>
+          <b><code>isVerified()</code></b>
+          <small>스마트 컨트랙트가 자격을 즉시 확인</small>
+        </div>
+      </div>
+
+      <div className="policy-band">
+        <span className="policy-icon"><IconShield /></span>
+        <div>
+          <strong>직관은 이 ‘검증 가능한 자격’을 티켓 규칙으로 바꿨습니다.</strong>
+          <p>검증된 지갑만 예매·양도하고, 정가를 넘는 거래는 컨트랙트가 거부합니다.</p>
+        </div>
+        <span className="policy-result">익명 대량 매집의 비용은 높이고<br /><b>진짜 팬의 거래는 안전하게</b></span>
       </div>
     </Slide>
   )
 }
 
-/* ── 슬라이드 5 — 작동 원리 / 플로우 + Dojang ────────────────── */
-function SlideHow({ active }) {
-  const steps = [
-    { no: '1', tt: 'Dojang 인증', ds: '지갑이 검증된 팬인지 온체인 조회', code: 'isVerified()' },
-    { no: '2', tt: '예매 · 발권', ds: '정가 결제 → NFT 티켓 민팅', code: 'purchase()' },
-    { no: '3', tt: '정가 이하 양도', ds: '검증 지갑 + 정가 이하만 통과', code: 'list / buy()' },
-    { no: '4', tt: '현장 입장', ds: '소유자 전용 Live QR 검증', code: 'redeem()' },
-  ]
+function DemoPreview({ src, index, icon, title, description }) {
   return (
-    <Slide active={active}>
-      <span className="d-kicker"><Seam /> 어떻게 동작하나</span>
-      <h1 className="d-h1" style={{ marginTop: 14 }}>예매부터 입장까지, <span className="d-hl-blue">전 과정 온체인</span></h1>
-      <div className="flow-wrap">
-        <div className="flow-line">
-          {steps.map((s, i) => (
-            <div key={s.no}>
-              <div className="flow-step">
-                <span className="fs-no">{s.no}</span>
-                <span className="fs-body">
-                  <span className="fs-tt">{s.tt}</span>
-                  <span className="fs-ds">{s.ds}</span>
-                </span>
-                <span className="fs-code">{s.code}</span>
-              </div>
-              {i < steps.length - 1 && <div className="flow-connector" />}
-            </div>
-          ))}
+    <article className="demo-preview">
+      <div className="demo-media">
+        <div className="demo-fallback">
+          <span className="demo-fallback-index">GIF {index}</span>
+          <span className="demo-fallback-icon">{icon}</span>
+          <small>{title}</small>
         </div>
-
-        <div className="dojang-card">
-          <span className="dc-badge">◆ GIWA Dojang</span>
-          <span className="dc-tt">PII 없이, 온체인 신원</span>
-          <span className="dc-ds">
-            주민번호·실명 같은 <b>개인 식별 정보를 지갑에 노출하지 않고도</b>
-            “검증된 사람”임을 온체인에서 증명하는 GIWA 생태계의 신원 서비스.
-          </span>
-          <div className="dc-list">
-            <span className="dc-item"><span className="ck"><IconCheck size={16} /></span> 검증은 온체인, 개인정보는 오프체인</span>
-            <span className="dc-item"><span className="ck"><IconCheck size={16} /></span> 1인 = 1 검증 지갑 → 대량 매집 차단</span>
-          </div>
-          <div className="dc-pii">🔒 개인정보 노출 0 · 신뢰는 그대로</div>
-        </div>
+        <img src={src} alt={`${title} 기능 시연`} onError={(event) => { event.currentTarget.hidden = true }} />
       </div>
+      <div className="demo-copy">
+        <span className="demo-icon">{icon}</span>
+        <div><strong>{title}</strong><p>{description}</p></div>
+      </div>
+    </article>
+  )
+}
+
+/* ── 슬라이드 5 — 제품 데모 ───────────────────────────────────── */
+function SlideDemo({ active }) {
+  return (
+    <Slide active={active} className="s-demo">
+      <span className="d-kicker"><Seam /> 그래서 직관은 이렇게 동작합니다</span>
+      <h1 className="demo-title">팬에게는 익숙한 예매 경험,<br /><span className="d-hl">규칙은 보이지 않게 온체인으로.</span></h1>
+      <div className="demo-grid">
+        <DemoPreview
+          index="01"
+          src="/assets/demo-booking.gif"
+          icon={<IconShield />}
+          title="인증하고 예매"
+          description="Dojang 인증 지갑만 좌석을 정가로 예매"
+        />
+        <DemoPreview
+          index="02"
+          src="/assets/demo-transfer.gif"
+          icon={<IconTag />}
+          title="NFT로 보관·양도"
+          description="내 컬렉션에서 확인하고 정가 이하로만 양도"
+        />
+        <DemoPreview
+          index="03"
+          src="/assets/demo-entry.gif"
+          icon={<IconQR />}
+          title="Live QR로 입장"
+          description="현재 소유자만 발급받는 재사용 방지 입장권"
+        />
+      </div>
+      <p className="demo-foot">
+        팬은 블록체인을 몰라도 됩니다. <b>안전한 예매·양도·입장 경험</b>만 남습니다.
+      </p>
     </Slide>
   )
 }
@@ -279,8 +293,8 @@ function SlideThesis({ active }) {
       <div className="thesis-top">
         <span className="d-kicker"><Seam /> 이 해커톤이 남긴 진짜 이야기</span>
         <h2 className="d-h2">
-          무언가를 <span className="d-hl">만드는 비용</span>은 0에 수렴합니다.<br />
-          그래서 사람은 <span className="d-hl-gold">경험</span>해야 합니다.
+          이 문제를 풀게 한 것은 <span className="d-hl">AI 지식</span>보다,<br />
+          현실에서 <span className="d-hl-gold">보고 듣고 경험한 것</span>이었습니다.
         </h2>
       </div>
 
@@ -317,8 +331,8 @@ function SlideThesis({ active }) {
       </div>
 
       <p className="thesis-foot">
-        많은 경험이 뭉쳐 <span className="d-hl">창발</span>이 일어나고,
-        그 끝에서 <span className="d-hl">직관</span>이 궁극의 문제를 풉니다.
+        경험 속에서 해결하고 싶은 문제를 발견하고,<br />
+        그 문제를 향한 <span className="d-hl">분명한 의도</span>가 AI를 움직였습니다.
       </p>
     </Slide>
   )
@@ -349,10 +363,9 @@ function SlideClose({ active }) {
       </h1>
 
       <p className="close-sub">
-        AI가 실행하는 시대, <b>인간에게 남는 건 의도(Intention)</b>.<br />
-        그리고 <b>축적된 경험이 직관</b>이 되고, 그 직관이 현실의 문제를 풉니다.<br />
-        기술 자체에 머무르지 않고, <b>현실의 문제를 푸는 유저 친화적 서비스</b>로<br />
-        확산되는 데 기여하고 싶습니다.
+        <b>Web3는 아직 많은 사람에게 낯섭니다.</b><br />
+        그래서 Web3가 나아갈 길은 기술을 설명하는 것이 아니라,<br />
+        <b>현실의 문제를 해결하는 유저 친화적 서비스</b>를 만드는 것이라 생각합니다.
       </p>
 
       <div className="close-cta">
@@ -363,11 +376,16 @@ function SlideClose({ active }) {
   )
 }
 
-const SLIDES = [SlideTitle, SlideProblem, SlideIntent, SlideSolution, SlideHow, SlideThesis, SlideClose]
+const SLIDES = [SlideIntent, SlideProblem, SlideTitle, SlideSolution, SlideDemo, SlideThesis, SlideClose]
 
 /* ── 덱 셸: 스케일링 + 네비게이션 ───────────────────────────── */
 export default function Presentation() {
-  const [index, setIndex] = useState(0)
+  const [index, setIndex] = useState(() => {
+    const requested = Number(new URLSearchParams(window.location.search).get('slide'))
+    return Number.isInteger(requested) && requested > 0
+      ? Math.min(requested - 1, SLIDES.length - 1)
+      : 0
+  })
   const [scale, setScale] = useState(1)
   const total = SLIDES.length
 

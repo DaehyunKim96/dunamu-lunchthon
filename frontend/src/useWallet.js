@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { giwaSepolia, GIWA_SEPOLIA_HEX, giwaAddChainParams, checkDojangVerified } from './contracts/giwaSepolia'
 
-const DEMO_ADDRESS = '0x7a91c0f3b2e84d6a1f5c9b7e0d3a2c14b8e64c21'
 const CONNECT_TIMEOUT_MS = 30_000
 export const METAMASK_INSTALL_URL = 'https://metamask.io/download/'
 
@@ -12,7 +11,7 @@ export function shortAddr(addr) {
 
 const initialState = {
   status: 'disconnected', // disconnected | connecting | wrong-network | connected
-  mode: null, // 'wallet' | 'demo'
+  mode: null, // 'wallet'
   address: null,
   chainId: null,
   verified: null, // null = 미조회, true/false = 조회 결과
@@ -147,10 +146,6 @@ export function useWallet() {
     }
   }, [patch, runVerification])
 
-  const enterDemo = useCallback(() => {
-    patch({ status: 'connected', mode: 'demo', address: DEMO_ADDRESS, chainId: giwaSepolia.id, verified: true, handle: 'minjun.up.id', error: null })
-  }, [patch])
-
   const disconnect = useCallback(() => {
     setProvider(null)
     setState(initialState)
@@ -191,9 +186,9 @@ export function useWallet() {
 
   return {
     ...state,
+    provider,
     connect,
     disconnect,
-    enterDemo,
     recheck,
     switchNetwork,
     hasInjectedWallet: typeof window !== 'undefined' && Boolean(window.ethereum),

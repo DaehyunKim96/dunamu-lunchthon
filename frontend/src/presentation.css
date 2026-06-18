@@ -279,7 +279,7 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  min-width: 230px;
+  min-width: 350px;
 }
 .s-title .dual .cell + .cell { border-left: 1px solid var(--d-line); }
 .s-title .dual .cell .ko { font-size: 22px; font-weight: 900; letter-spacing: -0.01em; }
@@ -287,15 +287,125 @@
 .s-title .dual .cell .ko small { font-size: 14px; font-weight: 800; color: var(--d-gold); margin-left: 6px; }
 .s-title .tagline {
   margin-top: 30px;
-  font-size: 17px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--d-muted);
+  line-height: 1.55;
 }
 .s-title .tagline b { color: var(--d-ink); }
 
 /* ============================================================
    슬라이드 2 — 문제 (암표)
    ============================================================ */
+.s-problem { padding-top: 78px; }
+.problem-grid {
+  display: grid;
+  grid-template-columns: 0.94fr 1.06fr;
+  gap: 46px;
+  align-items: center;
+  flex: 1;
+  min-height: 0;
+  margin-top: 22px;
+}
+.problem-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.problem-copy .d-h1 {
+  font-size: 47px;
+  line-height: 1.13;
+  word-break: keep-all;
+}
+.problem-lead {
+  margin: 30px 0 0;
+  color: var(--d-muted);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.55;
+}
+.problem-lead b { color: var(--d-primary-soft); }
+.fan-quote {
+  margin: 34px 0 0;
+  padding: 18px 20px;
+  border-left: 3px solid var(--d-gold);
+  background: rgba(233, 185, 73, 0.08);
+  color: var(--d-ink);
+  font-size: 16px;
+  font-weight: 750;
+  line-height: 1.55;
+}
+.article-card {
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--d-line);
+  border-radius: 8px;
+  background: #101a20;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.32);
+}
+.article-image {
+  position: relative;
+  height: 392px;
+  overflow: hidden;
+  background: #111;
+}
+.article-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 43%;
+  display: block;
+}
+.article-image::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 62%, rgba(5, 10, 16, 0.5));
+  pointer-events: none;
+}
+.article-stat {
+  position: absolute;
+  right: 18px;
+  bottom: 18px;
+  z-index: 1;
+  width: 118px;
+  height: 94px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.26);
+  border-radius: 8px;
+  background: rgba(232, 19, 29, 0.92);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
+}
+.article-stat b {
+  color: #fff;
+  font-size: 38px;
+  line-height: 1;
+}
+.article-stat small {
+  margin-top: 6px;
+  color: rgba(255, 255, 255, 0.82);
+  font-size: 11px;
+  font-weight: 800;
+}
+.article-card figcaption {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  min-height: 72px;
+  padding: 14px 18px;
+  color: var(--d-primary-soft);
+  font-size: 12px;
+  font-weight: 900;
+}
+.article-card figcaption span {
+  color: var(--d-ink);
+  font-size: 14px;
+  font-weight: 750;
+}
+
 .s-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -408,9 +518,20 @@
   border-radius: 18px;
   border: 1px solid var(--d-line);
   background: rgba(255, 255, 255, 0.04);
-  min-width: 188px;
+  min-width: 252px;
 }
-.intent-node .ic { font-size: 34px; }
+.intent-symbol {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--d-gold);
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 15px;
+  font-weight: 900;
+}
 .intent-node .tt { font-size: 20px; font-weight: 900; }
 .intent-node .ds { font-size: 13px; font-weight: 600; color: var(--d-muted); }
 .intent-node.accent { border-color: rgba(255, 90, 78, 0.5); background: rgba(255, 43, 54, 0.1); }
@@ -427,8 +548,118 @@
 .intent-sub b { color: var(--d-ink); }
 
 /* ============================================================
-   슬라이드 4 — 솔루션 / 4기둥
+   슬라이드 4 — 솔루션 / Dojang
    ============================================================ */
+.s-solution { padding-top: 78px; }
+.solution-title {
+  margin: 20px 0 0;
+  font-size: 49px;
+  font-weight: 900;
+  line-height: 1.16;
+}
+.solution-title .muted-word {
+  color: var(--d-muted);
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+  text-decoration-color: rgba(147, 162, 189, 0.7);
+}
+.dojang-flow {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: stretch;
+  gap: 14px;
+  margin-top: 34px;
+}
+.dojang-step {
+  position: relative;
+  min-height: 132px;
+  padding: 24px 22px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 9px;
+  border: 1px solid var(--d-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.dojang-step.privacy {
+  border-color: rgba(233, 185, 73, 0.35);
+  background: rgba(233, 185, 73, 0.08);
+}
+.dojang-step.verify {
+  border-color: rgba(54, 210, 122, 0.35);
+  background: rgba(54, 210, 122, 0.08);
+}
+.dojang-step b {
+  font-size: 18px;
+  font-weight: 900;
+}
+.dojang-step b code {
+  color: var(--d-green);
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+}
+.dojang-step small {
+  color: var(--d-muted);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.dojang-no {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  color: rgba(255, 255, 255, 0.28);
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 12px;
+  font-weight: 900;
+}
+.dojang-arrow {
+  align-self: center;
+  color: var(--d-primary-soft);
+  font-size: 24px;
+  font-weight: 900;
+}
+.policy-band {
+  margin-top: 24px;
+  min-height: 112px;
+  padding: 20px 24px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  border: 1px solid rgba(255, 90, 78, 0.38);
+  border-radius: 8px;
+  background: linear-gradient(90deg, rgba(255, 43, 54, 0.14), rgba(255, 255, 255, 0.035));
+}
+.policy-icon {
+  width: 54px;
+  height: 54px;
+  display: grid;
+  place-items: center;
+  color: var(--d-primary-soft);
+}
+.policy-icon svg { width: 42px; height: 42px; }
+.policy-band strong {
+  font-size: 18px;
+  font-weight: 900;
+}
+.policy-band p {
+  margin: 7px 0 0;
+  color: var(--d-muted);
+  font-size: 14px;
+  font-weight: 700;
+}
+.policy-result {
+  padding-left: 22px;
+  border-left: 1px solid var(--d-line);
+  color: var(--d-muted);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.55;
+  text-align: right;
+}
+.policy-result b { color: var(--d-ink); }
+
 .solu-def {
   margin-top: 14px;
   font-size: 23px;
@@ -493,8 +724,116 @@
 }
 
 /* ============================================================
-   슬라이드 5 — 작동 원리 / 플로우 + Dojang
+   슬라이드 5 — 제품 데모
    ============================================================ */
+.s-demo { padding-top: 78px; }
+.demo-title {
+  margin: 16px 0 0;
+  font-size: 40px;
+  font-weight: 900;
+  line-height: 1.15;
+}
+.demo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 24px;
+}
+.demo-preview {
+  overflow: hidden;
+  border: 1px solid var(--d-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.04);
+}
+.demo-media {
+  position: relative;
+  height: 250px;
+  overflow: hidden;
+  border-bottom: 1px solid var(--d-line);
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+    #0b1525;
+  background-size: 24px 24px;
+}
+.demo-media img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.demo-media img[hidden] { display: none; }
+.demo-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--d-muted);
+}
+.demo-fallback-index {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  color: rgba(147, 162, 189, 0.64);
+  font-family: "SF Mono", ui-monospace, Menlo, monospace;
+  font-size: 11px;
+  font-weight: 900;
+}
+.demo-fallback-icon {
+  width: 58px;
+  height: 58px;
+  display: grid;
+  place-items: center;
+  color: var(--d-primary-soft);
+}
+.demo-fallback-icon svg { width: 44px; height: 44px; }
+.demo-fallback small {
+  color: var(--d-ink);
+  font-size: 14px;
+  font-weight: 800;
+}
+.demo-copy {
+  min-height: 80px;
+  padding: 15px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.demo-icon {
+  width: 34px;
+  height: 34px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--d-primary-soft);
+}
+.demo-icon svg { width: 26px; height: 26px; }
+.demo-copy strong {
+  font-size: 16px;
+  font-weight: 900;
+}
+.demo-copy p {
+  margin: 4px 0 0;
+  color: var(--d-muted);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+.demo-foot {
+  margin: 20px 0 0;
+  text-align: center;
+  color: var(--d-muted);
+  font-size: 17px;
+  font-weight: 700;
+}
+.demo-foot b { color: var(--d-ink); }
+
 .flow-wrap { margin-top: 26px; flex: 1; display: grid; grid-template-columns: 1.45fr 1fr; gap: 30px; }
 .flow-line { display: flex; flex-direction: column; gap: 14px; }
 .flow-step {

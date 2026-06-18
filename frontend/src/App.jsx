@@ -1,15 +1,25 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWallet, shortAddr, METAMASK_INSTALL_URL } from './useWallet'
-import { giwaSepolia } from './contracts/giwaSepolia'
+import {
+  findEvent,
+  getWalletClient,
+  giwaSepolia,
+  idHash,
+  krwToWei,
+  pofTicketContracts,
+  primarySaleAbi,
+  publicClient,
+  transferMarketAbi,
+} from './contracts/giwaSepolia'
 
 const EXPLORER = giwaSepolia.blockExplorers.default.url
 const DOJANG_GUIDE = 'https://docs.giwa.io/giwa-ecosystem/dojang'
 
-// 데모용 컨트랙트 주소 (배포 전: contract/scripts/deploy.cjs 의 구성요소)
+// 실제 GIWA Sepolia 배포 주소 (contract/deployments/giwa-sepolia.json)
 const CONTRACTS = {
-  ticket: '0x2e9047c1b58a3f6d0e7c41985b2a6f3d90c178e4',
-  sale: '0x5b7d3e0c9a1f4b82d6e3105a7c2f9b40e8d61a23',
-  market: '0xa3c81f96b240e7d5c0913af68b2e4d77105c9e62',
+  ticket: pofTicketContracts.ticket,
+  sale: pofTicketContracts.primarySale,
+  market: pofTicketContracts.transferMarket,
 }
 
 /* ── KBO 구단 레지스트리 ─────────────────────────────────────── */
@@ -198,9 +208,23 @@ function MascotArt({ code, pose }) {
   )
 }
 
+/* ── 모드 전환 (시뮬레이션 ↔ 온체인) ──────────────────────────── */
+function ModeToggle({ mode, onChange }) {
+  return (
+    <div className="mode-toggle" role="tablist" aria-label="모드 전환">
+      <button type="button" role="tab" aria-selected={mode === 'simulation'} className={mode === 'simulation' ? 'active' : ''} onClick={() => onChange('simulation')}>
+        <span className="mode-dot" aria-hidden="true" />시뮬레이션
+      </button>
+      <button type="button" role="tab" aria-selected={mode === 'onchain'} className={mode === 'onchain' ? 'active onchain' : ''} onClick={() => onChange('onchain')}>
+        <span className="mode-dot" aria-hidden="true" />온체인
+      </button>
+    </div>
+  )
+}
+
 /* ── 지갑 칩 ──────────────────────────────────────────────────── */
 function WalletChip({ wallet }) {
-  const { status, verified, verifying, address, handle, mode } = wallet
+  const { status, verified, verifying, address, handle } = wallet
   if (status === 'disconnected') {
     return <button className="wallet-chip connect" type="button" onClick={wallet.connect}><span className="wallet-ico" aria-hidden="true">👛</span><span>지갑 연결</span></button>
   }
@@ -219,34 +243,46 @@ function WalletChip({ wallet }) {
       {state === 'checking' && <span className="chip-verify checking"><span className="spinner sm" />확인 중</span>}
       {state === 'ok' && <span className="chip-verify"><VerifiedMark size={13} />인증</span>}
       {state === 'no' && <span className="chip-verify danger">미인증</span>}
-      {mode === 'demo' && <span className="chip-demo">데모</span>}
     </button>
   )
 }
 
 /* ── 인증 배너 (예매 탭 상단) ─────────────────────────────────── */
-function VerifyBanner({ wallet }) {
-  const { status, verified, verifying, address, handle, mode, hasInjectedWallet } = wallet
+function VerifyBanner({ wallet, appMode, onSwitchMode }) {
+  const { status, verified, verifying, address, handle, hasInjectedWallet } = wallet
   const connected = status === 'connected'
+
+  if (appMode === 'simulation') {
+    return (
+      <div className="verify-banner ok">
+        <div className="vb-icon" aria-hidden="true"><VerifiedMark size={22} /></div>
+        <div className="vb-text">
+          <strong>시뮬레이션 모드로 둘러보는 중이에요<span className="chip-demo">SIM</span></strong>
+          <span>지갑 연결 없이 mock 데이터로 예매·양도·입장 흐름을 체험할 수 있어요. 실제 트랜잭션은 발생하지 않아요.</span>
+        </div>
+        <div className="vb-action">
+          <button className="primary-button slim" type="button" onClick={() => onSwitchMode('onchain')}>온체인 모드로 전환</button>
+        </div>
+      </div>
+    )
+  }
+
   let tone = 'idle'
   let title = '지갑을 연결하고 검증된 팬으로 예매하세요'
   let desc = 'GIWA Dojang 실명 인증을 통과한 지갑만 예매·양도할 수 있어요.'
   if (status === 'wrong-network') { tone = 'warn'; title = 'GIWA Sepolia 네트워크로 전환이 필요해요'; desc = '검증과 발권은 GIWA 체인에서 처리됩니다.' }
   else if (connected && verifying) { tone = 'idle'; title = `${handle || shortAddr(address)} · 검증 확인 중`; desc = 'Dojang OnchainVerifier 를 조회하고 있어요.' }
-  else if (connected && verified) { tone = 'ok'; title = `${handle || shortAddr(address)} · Dojang 인증 완료`; desc = 'Upbit Korea attester 기준 검증된 팬이에요. 바로 예매할 수 있어요.' }
+  else if (connected && verified) { tone = 'ok'; title = `${handle || shortAddr(address)} · Dojang 인증 완료`; desc = 'Upbit Korea attester 기준 검증된 팬이에요. 실제 온체인 트랜잭션으로 예매할 수 있어요.' }
   else if (connected && verified === false) { tone = 'warn'; title = '아직 검증되지 않은 지갑이에요'; desc = 'Dojang에서 Verified Address를 발급받으면 예매할 수 있어요.' }
 
   return (
     <div className={`verify-banner ${tone}`}>
       <div className="vb-icon" aria-hidden="true">{tone === 'ok' ? <VerifiedMark size={22} /> : <ShieldIdIcon size={26} />}</div>
       <div className="vb-text">
-        <strong>{title}{mode === 'demo' && <span className="chip-demo">데모</span>}</strong>
+        <strong>{title}</strong>
         <span>{desc}</span>
-        {!connected && status !== 'wrong-network' && (
-          <span className="vb-subaction">
-            {!hasInjectedWallet && <a href={METAMASK_INSTALL_URL} target="_blank" rel="noreferrer">MetaMask 설치 ↗</a>}
-            <button type="button" className="link-button" onClick={wallet.enterDemo}>지갑 없이 데모로 보기</button>
-          </span>
+        {!connected && status !== 'wrong-network' && !hasInjectedWallet && (
+          <span className="vb-subaction"><a href={METAMASK_INSTALL_URL} target="_blank" rel="noreferrer">MetaMask 설치 ↗</a></span>
         )}
       </div>
       <div className="vb-action">
@@ -261,19 +297,47 @@ function VerifyBanner({ wallet }) {
 }
 
 /* ── 온체인 트랜잭션 모달 (예매/양도 공용) ────────────────────── */
+// tx.simulated (기본값 true): 시뮬레이션 모드/시드 매물용 가짜 진행률.
+// tx.simulated === false: tx.execute(onSubmitted) 가 실제 walletClient.writeContract 를 호출하고
+// 실제 tx hash/블록으로 진행 상태를 채운다.
 const TX_STAGES = [
   { key: 'sign', label: '지갑 서명 요청', sub: 'GIWA 지갑에서 거래를 승인하세요', ms: 1100 },
   { key: 'broadcast', label: '트랜잭션 전송', sub: 'GIWA Sepolia 네트워크로 브로드캐스트', ms: 800 },
   { key: 'preconfirm', label: 'Flashblocks Preconfirm', sub: '약 200ms 만에 프리컨펌 수신', ms: 600 },
   { key: 'confirm', label: '블록 확정', sub: '1 confirmation 기록', ms: 1000 },
 ]
+const REAL_TX_STAGES = [
+  { key: 'sign', label: '지갑 서명 요청', sub: 'MetaMask에서 트랜잭션을 승인하세요' },
+  { key: 'broadcast', label: '트랜잭션 전송', sub: 'GIWA Sepolia 네트워크로 브로드캐스트' },
+  { key: 'confirm', label: '블록 확정 대기', sub: '1 confirmation 대기 중' },
+]
 function TxModal({ tx, onClose }) {
   const [stage, setStage] = useState(0)
   const [done, setDone] = useState(false)
-  const meta = useRef({ hash: randTxHash(), block: 4821507 + Math.floor(Math.random() * 900) })
+  const [error, setError] = useState(null)
+  const meta = useRef(tx.simulated === false ? {} : { hash: randTxHash(), block: 4821507 + Math.floor(Math.random() * 900) })
   const committed = useRef(false)
+  const stages = tx.simulated === false ? REAL_TX_STAGES : TX_STAGES
 
   useEffect(() => {
+    if (tx.simulated === false) {
+      let alive = true
+      tx.execute((hash) => { if (alive) { meta.current.hash = hash; setStage(2) } })
+        .then((result) => {
+          if (!alive) return
+          meta.current = { ...meta.current, ...result }
+          setDone(true)
+          if (!committed.current) { committed.current = true; tx.onComplete?.(meta.current) }
+        })
+        .catch((err) => {
+          if (!alive) return
+          const message = err?.shortMessage || err?.message || '트랜잭션이 실패했어요.'
+          setError(message)
+          tx.onError?.(err)
+        })
+      return () => { alive = false }
+    }
+
     let alive = true
     const timers = []
     let acc = 0
@@ -284,6 +348,21 @@ function TxModal({ tx, onClose }) {
     timers.push(setTimeout(() => { if (alive) { setDone(true); if (!committed.current) { committed.current = true; tx.onComplete?.(meta.current) } } }, acc + 300))
     return () => { alive = false; timers.forEach(clearTimeout) }
   }, [tx])
+
+  if (error) {
+    return (
+      <div className="modal-overlay" role="dialog" aria-modal="true" onClick={onClose}>
+        <div className="modal tx-modal" onClick={(e) => e.stopPropagation()}>
+          <div className="tx-head">
+            <ChainTag>{tx.contract}.{tx.method}()</ChainTag>
+            <h3>트랜잭션 실패</h3>
+            <p>{error}</p>
+          </div>
+          <button className="primary-button" type="button" onClick={onClose}>닫기</button>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="modal-overlay" role="dialog" aria-modal="true" onClick={done ? onClose : undefined}>
@@ -296,7 +375,7 @@ function TxModal({ tx, onClose }) {
               <p>{tx.subtitle}</p>
             </div>
             <ol className="tx-stages">
-              {TX_STAGES.map((s, i) => {
+              {stages.map((s, i) => {
                 const st = i < stage ? 'done' : i === stage ? 'active' : 'wait'
                 return (
                   <li key={s.key} className={st}>
@@ -306,7 +385,7 @@ function TxModal({ tx, onClose }) {
                 )
               })}
             </ol>
-            {stage >= 2 && (
+            {stage >= 2 && meta.current.hash && (
               <a className="tx-hash" href={`${EXPLORER}/tx/${meta.current.hash}`} target="_blank" rel="noreferrer">
                 tx {shortHash(meta.current.hash)} ↗
               </a>
@@ -320,7 +399,7 @@ function TxModal({ tx, onClose }) {
             <dl className="tx-receipt">
               <div><dt>네트워크</dt><dd>GIWA Sepolia</dd></div>
               <div><dt>컨트랙트</dt><dd>{tx.contract}</dd></div>
-              <div><dt>블록</dt><dd>#{meta.current.block.toLocaleString()}</dd></div>
+              <div><dt>블록</dt><dd>#{Number(meta.current.block).toLocaleString()}</dd></div>
               <div><dt>Tx Hash</dt><dd><a href={`${EXPLORER}/tx/${meta.current.hash}`} target="_blank" rel="noreferrer">{shortHash(meta.current.hash)} ↗</a></dd></div>
             </dl>
             <button className="primary-button" type="button" onClick={onClose}>{tx.successCta || '확인'}</button>
@@ -332,10 +411,11 @@ function TxModal({ tx, onClose }) {
 }
 
 /* ── 좌석 선택 모달 ───────────────────────────────────────────── */
-function SeatModal({ game, wallet, onClose, onCheckout }) {
+function SeatModal({ game, wallet, appMode, onClose, onCheckout }) {
   const [seatId, setSeatId] = useState(null)
-  const connected = wallet.status === 'connected'
-  const verified = wallet.verified === true
+  const simulating = appMode === 'simulation'
+  const connected = simulating || wallet.status === 'connected'
+  const verified = simulating || wallet.verified === true
   const home = TEAMS[game.home]
   const away = TEAMS[game.away]
   const seat = game.seats.find((s) => s.id === seatId) || null
@@ -402,9 +482,10 @@ function SeatModal({ game, wallet, onClose, onCheckout }) {
 }
 
 /* ── 거래소 상세/구매 모달 (티켓베이 스타일) ──────────────────── */
-function ListingModal({ listing, wallet, onClose, onBuy }) {
-  const connected = wallet.status === 'connected'
-  const verified = wallet.verified === true
+function ListingModal({ listing, wallet, appMode, onClose, onBuy }) {
+  const simulating = appMode === 'simulation'
+  const connected = simulating || wallet.status === 'connected'
+  const verified = simulating || wallet.verified === true
   const home = TEAMS[listing.home]
   const away = TEAMS[listing.away]
   const total = listing.pricePer * listing.qty
@@ -476,6 +557,9 @@ function CollectibleCard({ ticket, owner, onFlip, flipped }) {
             <div><dt>소유자</dt><dd>{owner}</dd></div>
             <div><dt>Token</dt><dd>{ticket.tokenId}</dd></div>
             <div><dt>컨트랙트</dt><dd><a href={`${EXPLORER}/address/${CONTRACTS.ticket}`} target="_blank" rel="noreferrer">{shortAddr(CONTRACTS.ticket)} ↗</a></dd></div>
+            {ticket.onchain && ticket.txHash && (
+              <div><dt>발급 Tx</dt><dd><a href={`${EXPLORER}/tx/${ticket.txHash}`} target="_blank" rel="noreferrer">{shortHash(ticket.txHash)} ↗</a></dd></div>
+            )}
           </dl>
         </div>
       </div>
@@ -492,8 +576,8 @@ const TABS = [
 
 export default function App() {
   const wallet = useWallet()
-  const verified = wallet.verified === true
   const connected = wallet.status === 'connected'
+  const [appMode, setAppMode] = useState('simulation') // 'simulation' | 'onchain'
   const [tab, setTab] = useState('book')
   const [games, setGames] = useState(initialGames)
   const [tickets, setTickets] = useState(initialTickets)
@@ -509,7 +593,7 @@ export default function App() {
   const [underOnly, setUnderOnly] = useState(true)
   const [sortBy, setSortBy] = useState('price')
 
-  const owner = connected ? wallet.handle || shortAddr(wallet.address) : '게스트'
+  const owner = connected ? wallet.handle || shortAddr(wallet.address) : appMode === 'simulation' ? 'sim.up.id' : '게스트'
   const seatGame = games.find((g) => g.id === seatGameId) || null
 
   useEffect(() => {
@@ -523,7 +607,8 @@ export default function App() {
   }, [wallet.error])
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
-    if (params.has('demo')) wallet.enterDemo()
+    const m = params.get('mode')
+    if (m === 'onchain' || m === 'simulation') setAppMode(m)
     const t = params.get('tab')
     if (t && TABS.some((x) => x.key === t)) setTab(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -532,20 +617,59 @@ export default function App() {
   const showToast = (message, tone = 'ok') => setToast({ id: Date.now(), message, tone })
   const toggleFlip = (id) => setFlipped((p) => ({ ...p, [id]: !p[id] }))
   const goTab = (k) => { setTab(k); window.scrollTo({ top: 0, behavior: 'smooth' }) }
+  // 온체인 모드로 전환하면 즉시 지갑 연결을 시도한다 (시뮬레이션 모드는 지갑 없이도 동작)
+  const handleModeChange = (next) => {
+    if (next === appMode) return
+    setAppMode(next)
+    if (next === 'onchain' && wallet.status !== 'connected') wallet.connect()
+  }
+
+  // 실제 트랜잭션은 온체인 모드 + MetaMask로 GIWA Sepolia에 연결된 지갑에서만 가능
+  const canSendReal = appMode === 'onchain' && wallet.mode === 'wallet' && Boolean(wallet.provider) && Boolean(wallet.address)
+  const txErrorMessage = (err) => err?.shortMessage || err?.cause?.shortMessage || err?.message || '트랜잭션이 실패했어요.'
 
   // 예매 결제 (좌석 모달 → 결제 트랜잭션)
   const startPurchase = (seat) => {
     const game = seatGame
     setSeatGameId(null)
+    const subtitle = `${TEAMS[game.away].short} vs ${TEAMS[game.home].short} · ${seat.zone} ${seat.row}열 ${seat.seat}번 · ${formatWon(seat.price)}`
+
+    if (!canSendReal) {
+      setTx({
+        contract: 'PrimaryTicketSale', method: 'purchase',
+        title: '온체인 예매 결제', subtitle,
+        successTitle: 'NFT 입장권 발급 완료', successText: '구단이 공식 발행한 정가 티켓이 내 지갑에 민팅됐어요. (시뮬레이션 모드)', successCta: '내 티켓 보기',
+        onComplete: () => {
+          setGames((prev) => prev.map((g) => g.id === game.id ? { ...g, seats: g.seats.map((s) => s.id === seat.id ? { ...s, sold: true } : s) } : g))
+          const tokenId = `KBO-${Date.now().toString().slice(-6)}`
+          setTickets((prev) => [{ tokenId, home: game.home, away: game.away, date: `${game.date.md} ${game.date.dow} ${game.date.time}`, seat: `${seat.zone} ${seat.row}열 ${seat.seat}번`, price: seat.price, faceValue: seat.price, used: false }, ...prev])
+        },
+      })
+      return
+    }
+
     setTx({
+      simulated: false,
       contract: 'PrimaryTicketSale', method: 'purchase',
-      title: '온체인 예매 결제', subtitle: `${TEAMS[game.away].short} vs ${TEAMS[game.home].short} · ${seat.zone} ${seat.row}열 ${seat.seat}번 · ${formatWon(seat.price)}`,
-      successTitle: 'NFT 입장권 발급 완료', successText: '구단이 공식 발행한 정가 티켓이 내 지갑에 민팅됐어요.', successCta: '내 티켓 보기',
-      onComplete: () => {
-        setGames((prev) => prev.map((g) => g.id === game.id ? { ...g, seats: g.seats.map((s) => s.id === seat.id ? { ...s, sold: true } : s) } : g))
-        const tokenId = `KBO-${Date.now().toString().slice(-6)}`
-        setTickets((prev) => [{ tokenId, home: game.home, away: game.away, date: `${game.date.md} ${game.date.dow} ${game.date.time}`, seat: `${seat.zone} ${seat.row}열 ${seat.seat}번`, price: seat.price, faceValue: seat.price, used: false }, ...prev])
+      title: '온체인 예매 결제', subtitle,
+      successTitle: 'NFT 입장권 발급 완료', successText: '구단이 공식 발행한 정가 티켓이 내 지갑에 실제로 민팅됐어요.', successCta: '내 티켓 보기',
+      execute: async (onSubmitted) => {
+        const walletClient = getWalletClient(wallet.provider, wallet.address)
+        const gameId = idHash(game.id)
+        const seatId = idHash(seat.id)
+        const seatKey = await publicClient.readContract({ address: CONTRACTS.sale, abi: primarySaleAbi, functionName: 'seatKeyOf', args: [gameId, seatId] })
+        const hash = await walletClient.writeContract({ address: CONTRACTS.sale, abi: primarySaleAbi, functionName: 'purchase', args: [seatKey], value: krwToWei(seat.price) })
+        onSubmitted(hash)
+        const receipt = await publicClient.waitForTransactionReceipt({ hash })
+        const event = findEvent(primarySaleAbi, receipt.logs, 'SeatPurchased')
+        return { hash, block: receipt.blockNumber, tokenId: event?.args?.tokenId }
       },
+      onComplete: (result) => {
+        setGames((prev) => prev.map((g) => g.id === game.id ? { ...g, seats: g.seats.map((s) => s.id === seat.id ? { ...s, sold: true } : s) } : g))
+        const realTokenId = result.tokenId
+        setTickets((prev) => [{ tokenId: `KBO-${realTokenId}`, realTokenId, onchain: true, txHash: result.hash, home: game.home, away: game.away, date: `${game.date.md} ${game.date.dow} ${game.date.time}`, seat: `${seat.zone} ${seat.row}열 ${seat.seat}번`, price: seat.price, faceValue: seat.price, used: false }, ...prev])
+      },
+      onError: (err) => showToast(txErrorMessage(err), 'warn'),
     })
   }
   const closeTxAndGoCollection = () => { setTx(null); goTab('collection') }
@@ -553,23 +677,66 @@ export default function App() {
   // 양도 결제 (거래소 상세 → 온체인 정산)
   const startTransfer = (listing) => {
     setDetailListing(null)
+    const subtitle = `${TEAMS[listing.away].short} vs ${TEAMS[listing.home].short} · ${listing.grade} · ${formatWon(listing.pricePer * listing.qty)}`
+
+    if (!listing.onchain || !canSendReal) {
+      setTx({
+        contract: 'TicketTransferMarket', method: 'buy',
+        title: '온체인 양도 정산', subtitle,
+        successTitle: '양도 완료', successText: `스마트컨트랙트 에스크로를 통해 NFT 소유권이 내 지갑으로 이전됐어요. (${listing.onchain ? '시뮬레이션 모드' : '시드 매물 · 시뮬레이션'})`, successCta: '내 티켓 보기',
+        onComplete: () => {
+          setListings((prev) => prev.filter((x) => x.id !== listing.id))
+          setTickets((prev) => [{ tokenId: `KBO-TX${Date.now().toString().slice(-5)}`, home: listing.home, away: listing.away, date: listing.dateText.replace(/^2026\./, '').slice(0, 11), seat: `${listing.grade} ${listing.block} ${listing.row}`, price: listing.pricePer, faceValue: listing.faceValue, used: false }, ...prev])
+        },
+      })
+      return
+    }
+
     setTx({
+      simulated: false,
       contract: 'TicketTransferMarket', method: 'buy',
-      title: '온체인 양도 정산', subtitle: `${TEAMS[listing.away].short} vs ${TEAMS[listing.home].short} · ${listing.grade} · ${formatWon(listing.pricePer * listing.qty)}`,
-      successTitle: '양도 완료', successText: '스마트컨트랙트 에스크로를 통해 NFT 소유권이 내 지갑으로 이전됐어요.', successCta: '내 티켓 보기',
+      title: '온체인 양도 정산', subtitle,
+      successTitle: '양도 완료', successText: '스마트컨트랙트 에스크로를 통해 NFT 소유권이 실제로 내 지갑으로 이전됐어요.', successCta: '내 티켓 보기',
+      execute: async (onSubmitted) => {
+        const walletClient = getWalletClient(wallet.provider, wallet.address)
+        const hash = await walletClient.writeContract({ address: CONTRACTS.market, abi: transferMarketAbi, functionName: 'buy', args: [BigInt(listing.realTokenId)], value: krwToWei(listing.pricePer * listing.qty) })
+        onSubmitted(hash)
+        const receipt = await publicClient.waitForTransactionReceipt({ hash })
+        return { hash, block: receipt.blockNumber }
+      },
       onComplete: () => {
         setListings((prev) => prev.filter((x) => x.id !== listing.id))
-        setTickets((prev) => [{ tokenId: `KBO-TX${Date.now().toString().slice(-5)}`, home: listing.home, away: listing.away, date: listing.dateText.replace(/^2026\./, '').slice(0, 11), seat: `${listing.grade} ${listing.block} ${listing.row}`, price: listing.pricePer, faceValue: listing.faceValue, used: false }, ...prev])
+        setTickets((prev) => [{ tokenId: `KBO-${listing.realTokenId}`, realTokenId: listing.realTokenId, onchain: true, home: listing.home, away: listing.away, date: listing.dateText.replace(/^2026\./, '').slice(0, 11), seat: `${listing.grade} ${listing.block} ${listing.row}`, price: listing.pricePer, faceValue: listing.faceValue, used: false }, ...prev])
       },
+      onError: (err) => showToast(txErrorMessage(err), 'warn'),
     })
   }
 
   const listOwnedTicket = (tokenId) => {
     const ticket = tickets.find((t) => t.tokenId === tokenId)
     if (!ticket || ticket.used) return
-    setTickets((prev) => prev.filter((t) => t.tokenId !== tokenId))
-    setListings((prev) => [{ id: `owned-${tokenId}`, home: ticket.home, away: ticket.away, dateText: `2026.${ticket.date}`, grade: ticket.seat.split(' ')[0], block: ticket.seat.split(' ')[1] || '-', row: ticket.seat.split(' ')[2] || '-', qty: 1, pricePer: Math.max(ticket.faceValue - 3000, 1000), faceValue: ticket.faceValue, seller: owner, tokenId: tokenId.replace(/\D/g, '').slice(-4) }, ...prev])
-    showToast('보유 티켓을 정가 이하로 거래소에 등록했어요. 스마트컨트랙트가 정가 상한을 강제합니다.')
+    const pricePer = Math.max(ticket.faceValue - 3000, 1000)
+
+    if (!ticket.onchain || !canSendReal) {
+      setTickets((prev) => prev.filter((t) => t.tokenId !== tokenId))
+      setListings((prev) => [{ id: `owned-${tokenId}`, home: ticket.home, away: ticket.away, dateText: `2026.${ticket.date}`, grade: ticket.seat.split(' ')[0], block: ticket.seat.split(' ')[1] || '-', row: ticket.seat.split(' ')[2] || '-', qty: 1, pricePer, faceValue: ticket.faceValue, seller: owner, tokenId: tokenId.replace(/\D/g, '').slice(-4) }, ...prev])
+      showToast(`보유 티켓을 정가 이하로 거래소에 등록했어요. (시뮬레이션 모드)`)
+      return
+    }
+
+    ;(async () => {
+      try {
+        showToast('양도 등록 트랜잭션을 전송하고 있어요…')
+        const walletClient = getWalletClient(wallet.provider, wallet.address)
+        const hash = await walletClient.writeContract({ address: CONTRACTS.market, abi: transferMarketAbi, functionName: 'list', args: [BigInt(ticket.realTokenId), krwToWei(pricePer)] })
+        await publicClient.waitForTransactionReceipt({ hash })
+        setTickets((prev) => prev.filter((t) => t.tokenId !== tokenId))
+        setListings((prev) => [{ id: `owned-${tokenId}`, onchain: true, realTokenId: ticket.realTokenId, home: ticket.home, away: ticket.away, dateText: `2026.${ticket.date}`, grade: ticket.seat.split(' ')[0], block: ticket.seat.split(' ')[1] || '-', row: ticket.seat.split(' ')[2] || '-', qty: 1, pricePer, faceValue: ticket.faceValue, seller: owner, tokenId: String(ticket.realTokenId) }, ...prev])
+        showToast('실제 온체인 거래소에 정가 이하로 등록했어요. TicketTransferMarket.list() 트랜잭션이 기록됐습니다.')
+      } catch (err) {
+        showToast(txErrorMessage(err), 'warn')
+      }
+    })()
   }
   const useTicket = (tokenId) => {
     let changed = false
@@ -578,10 +745,15 @@ export default function App() {
   }
 
   const filteredListings = useMemo(() => {
-    let rows = listings.filter((l) => (teamFilter === 'ALL' || l.home === teamFilter || l.away === teamFilter) && (!underOnly || l.pricePer <= l.faceValue))
+    let rows = listings.filter((l) => (appMode === 'simulation' || l.onchain) && (teamFilter === 'ALL' || l.home === teamFilter || l.away === teamFilter) && (!underOnly || l.pricePer <= l.faceValue))
     rows = [...rows].sort((a, b) => sortBy === 'price' ? a.pricePer - b.pricePer : b.faceValue - b.pricePer - (a.faceValue - a.pricePer))
     return rows
-  }, [listings, teamFilter, underOnly, sortBy])
+  }, [listings, appMode, teamFilter, underOnly, sortBy])
+
+  const visibleTickets = useMemo(
+    () => tickets.filter((t) => appMode === 'simulation' || t.onchain),
+    [tickets, appMode]
+  )
 
   return (
     <div className="app-shell">
@@ -594,6 +766,7 @@ export default function App() {
           {TABS.map((t) => <button key={t.key} type="button" className={tab === t.key ? 'active' : ''} onClick={() => goTab(t.key)}>{t.label}</button>)}
         </nav>
         <div className="top-right">
+          <ModeToggle mode={appMode} onChange={handleModeChange} />
           <span className="net-badge"><span className="net-dot" />GIWA Sepolia</span>
           <WalletChip wallet={wallet} />
         </div>
@@ -613,7 +786,7 @@ export default function App() {
             </section>
 
             <section className="workspace">
-              <VerifyBanner wallet={wallet} />
+              <VerifyBanner wallet={wallet} appMode={appMode} onSwitchMode={handleModeChange} />
               <div className="section-heading">
                 <p className="eyebrow">1차 예매 · 구단 공식 발행</p>
                 <h2>오늘의 KBO 경기</h2>
@@ -678,7 +851,7 @@ export default function App() {
                           <span className="tb-date">경기 일시 {l.dateText}</span>
                           <strong className="tb-title">vs {away.short} <em>|</em> {l.block} <em>|</em> {l.row}</strong>
                           <span className="tb-grade">{l.grade}</span>
-                          <div className="tb-tags"><span className="badge under">정가 이하</span><span className="badge safe"><VerifiedMark size={11} />입장 안심</span><ChainTag>#{l.tokenId}</ChainTag></div>
+                          <div className="tb-tags"><span className="badge under">정가 이하</span><span className="badge safe"><VerifiedMark size={11} />입장 안심</span><ChainTag>#{l.tokenId}</ChainTag>{l.onchain ? <span className="badge safe">온체인 실거래</span> : <span className="chip-demo">데모</span>}</div>
                         </div>
                         <div className="tb-price">
                           <span className="tb-qty">수량 {l.qty}매{l.qty > 1 ? '(연석)' : ''}</span>
@@ -689,7 +862,11 @@ export default function App() {
                       </button>
                     )
                   })}
-                  {filteredListings.length === 0 && <div className="empty-ticket">조건에 맞는 매물이 없어요.</div>}
+                  {filteredListings.length === 0 && (
+                    <div className="empty-ticket">
+                      {appMode === 'onchain' ? '아직 온체인으로 등록된 매물이 없어요.' : '조건에 맞는 매물이 없어요.'}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -722,15 +899,19 @@ export default function App() {
               <h2>나의 직관 NFT 카드</h2>
               <p className="section-desc">예매·양도받은 입장권이 <ChainTag>BaseballTicketNFT</ChainTag> 로 발급됩니다. 경기가 끝나도 영원히 내 지갑에 남아요.</p>
             </div>
-            {tickets.length === 0 ? (
-              <div className="empty-ticket">아직 보유한 티켓이 없어요. 경기를 예매하거나 거래소에서 양도받으면 NFT 카드가 발급됩니다.</div>
+            {visibleTickets.length === 0 ? (
+              <div className="empty-ticket">
+                {appMode === 'onchain'
+                  ? '아직 온체인으로 발급받은 티켓이 없어요. 온체인 모드에서 예매하거나 거래소에서 양도받으면 NFT 카드가 발급됩니다.'
+                  : '아직 보유한 티켓이 없어요. 경기를 예매하거나 거래소에서 양도받으면 NFT 카드가 발급됩니다.'}
+              </div>
             ) : (
               <div className="collection-grid">
-                {tickets.map((ticket) => (
+                {visibleTickets.map((ticket) => (
                   <div key={ticket.tokenId} className="ticket-slot">
                     <CollectibleCard ticket={ticket} owner={owner} flipped={Boolean(flipped[ticket.tokenId])} onFlip={() => toggleFlip(ticket.tokenId)} />
                     <div className="ticket-info">
-                      <div className="ticket-info-head"><strong>{TEAMS[ticket.away].short} vs {TEAMS[ticket.home].short}</strong><span className={`ticket-state${ticket.used ? ' used' : ''}`}>{ticket.used ? '입장 완료' : '입장 가능'}</span></div>
+                      <div className="ticket-info-head"><strong>{TEAMS[ticket.away].short} vs {TEAMS[ticket.home].short}</strong>{ticket.onchain ? <ChainTag>온체인</ChainTag> : <span className="chip-demo">데모</span>}<span className={`ticket-state${ticket.used ? ' used' : ''}`}>{ticket.used ? '입장 완료' : '입장 가능'}</span></div>
                       <p>{ticket.date} · {ticket.seat}</p>
                       <div className="ticket-actions">
                         <button className="ghost-button" type="button" disabled={ticket.used} onClick={() => listOwnedTicket(ticket.tokenId)}>정가 이하 양도</button>
@@ -758,8 +939,8 @@ export default function App() {
         ))}
       </nav>
 
-      {seatGame && <SeatModal game={seatGame} wallet={wallet} onClose={() => setSeatGameId(null)} onCheckout={startPurchase} />}
-      {detailListing && <ListingModal listing={detailListing} wallet={wallet} onClose={() => setDetailListing(null)} onBuy={startTransfer} />}
+      {seatGame && <SeatModal game={seatGame} wallet={wallet} appMode={appMode} onClose={() => setSeatGameId(null)} onCheckout={startPurchase} />}
+      {detailListing && <ListingModal listing={detailListing} wallet={wallet} appMode={appMode} onClose={() => setDetailListing(null)} onBuy={startTransfer} />}
       {tx && <TxModal tx={tx} onClose={closeTxAndGoCollection} />}
       {toast && <div className={`toast ${toast.tone}`} key={toast.id}>{toast.message}</div>}
     </div>

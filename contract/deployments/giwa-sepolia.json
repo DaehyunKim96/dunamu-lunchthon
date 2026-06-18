@@ -1,0 +1,15 @@
+{
+  "network": "giwaSepolia",
+  "chainId": 91342,
+  "deployer": "0x605D36f9C40bE547B7D3F8BBc101d9285D8087BE",
+  "useMockVerifier": true,
+  "attesterId": "0xaa92f8c143657dde575de430aecaea6ca91f2e6072339b16932d426895d8d678",
+  "verifier": "0xbAf6d559b62A27fbFE80d2c0B542921804743396",
+  "mockVerifier": "0xbAf6d559b62A27fbFE80d2c0B542921804743396",
+  "mockVerifierDefaultVerified": true,
+  "ticket": "0x0F4A91b0ca7151097730f4F01b354E52f8CE0547",
+  "primarySale": "0x1ADa63347E95cdC98328b2f72Dff6aEB4e386F4E",
+  "transferMarket": "0x538CFa9Ddb1d8b387cf641FEA7e09cf490CAAf76",
+  "gateVerifier": "0x3517E220225912765ACDBB752A753426C322F21f",
+  "gateSigner": "0x605D36f9C40bE547B7D3F8BBc101d9285D8087BE"
+}
