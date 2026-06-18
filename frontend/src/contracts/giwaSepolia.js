@@ -116,6 +116,27 @@ export function getWalletClient(provider, account) {
   })
 }
 
+// 컨트랙트가 배포된 블록(세 컨트랙트 중 가장 빠른 생성 블록보다 살짝 이전).
+// GIWA Sepolia RPC는 eth_getLogs 범위를 최대 100,000블록으로 제한하는데,
+// 체인은 이미 2,800만 블록을 넘었기 때문에 fromBlock: 0n 으로 조회하면
+// "query exceeds max block range" 에러로 항상 조용히 실패한다.
+export const DEPLOY_BLOCK = 28_443_500n
+const MAX_LOG_RANGE = 90_000n
+
+// fromBlock~latest 구간을 RPC 제한보다 작은 창으로 쪼개 모든 로그를 모아온다.
+export async function getLogsInRange({ address, event, args, fromBlock = DEPLOY_BLOCK }) {
+  const latest = await publicClient.getBlockNumber()
+  const ranges = []
+  for (let start = fromBlock; start <= latest; start += MAX_LOG_RANGE + 1n) {
+    const end = start + MAX_LOG_RANGE > latest ? latest : start + MAX_LOG_RANGE
+    ranges.push([start, end])
+  }
+  const chunks = await Promise.all(
+    ranges.map(([from, to]) => publicClient.getLogs({ address, event, args, fromBlock: from, toBlock: to }))
+  )
+  return chunks.flat()
+}
+
 export function findEvent(abi, logs, eventName) {
   for (const log of logs) {
     try {
@@ -145,6 +166,33 @@ export const primarySaleAbi = [
     stateMutability: 'payable',
     inputs: [{ name: 'seatKey', type: 'bytes32' }],
     outputs: [{ name: 'tokenId', type: 'uint256' }],
+  },
+  {
+    type: 'function',
+    name: 'seatListing',
+    stateMutability: 'view',
+    inputs: [{ name: 'seatKey', type: 'bytes32' }],
+    outputs: [
+      {
+        name: 'listing',
+        type: 'tuple',
+        components: [
+          { name: 'gameId', type: 'bytes32' },
+          { name: 'seatId', type: 'bytes32' },
+          { name: 'startTime', type: 'uint64' },
+          { name: 'transferDeadline', type: 'uint64' },
+          { name: 'priceWei', type: 'uint256' },
+          { name: 'faceValueKrw', type: 'uint32' },
+          { name: 'zoneCode', type: 'uint16' },
+          { name: 'row', type: 'uint8' },
+          { name: 'seat', type: 'uint8' },
+          { name: 'maxTransfers', type: 'uint8' },
+          { name: 'maxPerWallet', type: 'uint8' },
+          { name: 'reentryAllowed', type: 'bool' },
+          { name: 'active', type: 'bool' },
+        ],
+      },
+    ],
   },
   {
     type: 'event',
@@ -184,6 +232,50 @@ export const transferMarketAbi = [
       { name: 'seller', type: 'address', indexed: true },
       { name: 'buyer', type: 'address', indexed: true },
       { name: 'priceWei', type: 'uint256', indexed: false },
+    ],
+  },
+]
+
+export const ticketAbi = [
+  {
+    type: 'function',
+    name: 'ticketMeta',
+    stateMutability: 'view',
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [
+      {
+        name: 'meta',
+        type: 'tuple',
+        components: [
+          { name: 'gameId', type: 'bytes32' },
+          { name: 'seatId', type: 'bytes32' },
+          { name: 'startTime', type: 'uint64' },
+          { name: 'transferDeadline', type: 'uint64' },
+          { name: 'faceValueWei', type: 'uint256' },
+          { name: 'faceValueKrw', type: 'uint32' },
+          { name: 'zoneCode', type: 'uint16' },
+          { name: 'row', type: 'uint8' },
+          { name: 'seat', type: 'uint8' },
+          { name: 'maxTransfers', type: 'uint8' },
+          { name: 'reentryAllowed', type: 'bool' },
+        ],
+      },
+    ],
+  },
+  {
+    type: 'function',
+    name: 'tokenStatus',
+    stateMutability: 'view',
+    inputs: [{ name: 'tokenId', type: 'uint256' }],
+    outputs: [{ type: 'uint8' }],
+  },
+  {
+    type: 'event',
+    name: 'Transfer',
+    inputs: [
+      { name: 'from', type: 'address', indexed: true },
+      { name: 'to', type: 'address', indexed: true },
+      { name: 'tokenId', type: 'uint256', indexed: true },
     ],
   },
 ]

@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useWallet, shortAddr, METAMASK_INSTALL_URL } from './useWallet'
 import {
+  KRW_TO_WEI,
   findEvent,
+  getLogsInRange,
   getWalletClient,
   giwaSepolia,
   idHash,
@@ -9,6 +11,7 @@ import {
   pofTicketContracts,
   primarySaleAbi,
   publicClient,
+  ticketAbi,
   transferMarketAbi,
 } from './contracts/giwaSepolia'
 
@@ -74,12 +77,153 @@ const initialTickets = [
   { tokenId: 'KBO-480102', home: 'NC', away: 'KW', date: '06.05 목 18:30', seat: '응원지정석 112블록 9열 2번', price: 22000, faceValue: 22000, used: false },
 ]
 
-const recentOnchainTrades = [
-  { match: 'LG vs 삼성', grade: '외야 그린석', price: 7000, hash: '0x9c41a7f0', ago: '방금' },
-  { match: 'KIA vs SSG', grade: '내야지정석', price: 39000, hash: '0x3e02b8d5', ago: '2분 전' },
-  { match: '롯데 vs 한화', grade: '내야지정석', price: 36000, hash: '0xa71f6c93', ago: '5분 전' },
-  { match: 'NC vs KIA', grade: '테이블석', price: 52000, hash: '0x18bd4e2a', ago: '9분 전' },
-]
+// register-demo-seats.cjs가 같은 규칙으로 등록한 좌석이므로, gameId 해시로 어느 경기인지 역추적할 수 있다.
+const GAME_TEAMS_BY_HASH = Object.fromEntries(initialGames.map((g) => [idHash(g.id), { home: g.home, away: g.away }]))
+function gradeForRow(row) {
+  return row === 1 ? '1루 테이블석' : row === 2 ? '1루 내야지정석' : row === 3 ? '블루석' : '응원지정석'
+}
+function formatAgo(atMs) {
+  const diff = Date.now() - atMs
+  if (diff < 60_000) return '방금'
+  if (diff < 3_600_000) return `${Math.floor(diff / 60_000)}분 전`
+  if (diff < 86_400_000) return `${Math.floor(diff / 3_600_000)}시간 전`
+  return `${Math.floor(diff / 86_400_000)}일 전`
+}
+
+// 사이드바의 "최근 온체인 거래"는 mock이 아니라 PrimaryTicketSale/TicketTransferMarket의
+// 실제 이벤트 로그를 읽어 채운다.
+async function loadRecentOnchainTrades() {
+  const saleEvent = primarySaleAbi.find((x) => x.type === 'event' && x.name === 'SeatPurchased')
+  const transferEvent = transferMarketAbi.find((x) => x.type === 'event' && x.name === 'TicketTransferred')
+  try {
+    const [purchaseLogs, transferLogs] = await Promise.all([
+      getLogsInRange({ address: CONTRACTS.sale, event: saleEvent }),
+      getLogsInRange({ address: CONTRACTS.market, event: transferEvent }),
+    ])
+
+    const merged = [...purchaseLogs, ...transferLogs]
+      .sort((a, b) => {
+        if (a.blockNumber !== b.blockNumber) return b.blockNumber > a.blockNumber ? 1 : -1
+        return Number(b.logIndex) - Number(a.logIndex)
+      })
+      .slice(0, 8)
+
+    const blockNumbers = [...new Set(merged.map((l) => l.blockNumber))]
+    const blocks = await Promise.all(blockNumbers.map((bn) => publicClient.getBlock({ blockNumber: bn })))
+    const blockTimeMs = new Map(blockNumbers.map((bn, i) => [bn, Number(blocks[i].timestamp) * 1000]))
+
+    return await Promise.all(
+      merged.map(async (log) => {
+        let row
+        let gameId
+        let priceWei
+        if (log.eventName === 'SeatPurchased') {
+          const listing = await publicClient.readContract({ address: CONTRACTS.sale, abi: primarySaleAbi, functionName: 'seatListing', args: [log.args.seatKey] })
+          row = listing.row
+          gameId = listing.gameId
+          priceWei = log.args.priceWei
+        } else {
+          const meta = await publicClient.readContract({ address: CONTRACTS.ticket, abi: ticketAbi, functionName: 'ticketMeta', args: [log.args.tokenId] })
+          row = meta.row
+          gameId = meta.gameId
+          priceWei = log.args.priceWei
+        }
+        const teams = GAME_TEAMS_BY_HASH[gameId]
+        return {
+          key: `${log.transactionHash}-${log.logIndex}`,
+          hash: log.transactionHash,
+          match: teams ? `${TEAMS[teams.away].short} vs ${TEAMS[teams.home].short}` : '알 수 없는 경기',
+          grade: gradeForRow(row),
+          price: Number(priceWei / KRW_TO_WEI),
+          ago: formatAgo(blockTimeMs.get(log.blockNumber)),
+        }
+      })
+    )
+  } catch (err) {
+    console.error('loadRecentOnchainTrades failed', err)
+    return []
+  }
+}
+
+// 좌석이 실제로 판매됐는지는 React state가 아니라 SeatPurchased 로그가 진실이다.
+// 새로고침해도 같은 좌석을 다시 살 수 있으면 안 되므로, 매번 체인에서 다시 읽어 games에 병합한다.
+async function loadOnchainSoldSeatIds() {
+  const saleEvent = primarySaleAbi.find((x) => x.type === 'event' && x.name === 'SeatPurchased')
+  try {
+    const logs = await getLogsInRange({ address: CONTRACTS.sale, event: saleEvent })
+    const soldByGame = {}
+    await Promise.all(
+      logs.map(async (log) => {
+        const listing = await publicClient.readContract({ address: CONTRACTS.sale, abi: primarySaleAbi, functionName: 'seatListing', args: [log.args.seatKey] })
+        const game = initialGames.find((g) => idHash(g.id) === listing.gameId)
+        const seat = game?.seats[(listing.row - 1) * 8 + (listing.seat - 1)]
+        if (!game || !seat) return
+        soldByGame[game.id] = soldByGame[game.id] || new Set()
+        soldByGame[game.id].add(seat.id)
+      })
+    )
+    return soldByGame
+  } catch (err) {
+    console.error('loadOnchainSoldSeatIds failed', err)
+    return {}
+  }
+}
+
+function formatGameDate(startTimeSec) {
+  const kst = new Date(Number(startTimeSec) * 1000 + 9 * 3_600_000)
+  const md = `${String(kst.getUTCMonth() + 1).padStart(2, '0')}.${String(kst.getUTCDate()).padStart(2, '0')}`
+  const dow = ['일', '월', '화', '수', '목', '금', '토'][kst.getUTCDay()]
+  const hhmm = `${String(kst.getUTCHours()).padStart(2, '0')}:${String(kst.getUTCMinutes()).padStart(2, '0')}`
+  return `${md} ${dow} ${hhmm}`
+}
+
+// "내 티켓"도 마찬가지로 로컬 state만 믿으면 새로고침 시 사라진다.
+// Transfer 이벤트로 지갑이 현재 들고 있는 토큰을 매번 체인에서 다시 계산한다.
+async function loadOwnedOnchainTickets(address) {
+  if (!address) return []
+  const transferEvent = ticketAbi.find((x) => x.type === 'event' && x.name === 'Transfer')
+  try {
+    const [toLogs, fromLogs] = await Promise.all([
+      getLogsInRange({ address: CONTRACTS.ticket, event: transferEvent, args: { to: address } }),
+      getLogsInRange({ address: CONTRACTS.ticket, event: transferEvent, args: { from: address } }),
+    ])
+
+    const latestByToken = new Map()
+    for (const log of [...toLogs, ...fromLogs]) {
+      const key = log.args.tokenId.toString()
+      const prev = latestByToken.get(key)
+      if (!prev || log.blockNumber > prev.blockNumber || (log.blockNumber === prev.blockNumber && log.logIndex > prev.logIndex)) {
+        latestByToken.set(key, log)
+      }
+    }
+    const ownedIds = [...latestByToken.values()].filter((log) => log.args.to.toLowerCase() === address.toLowerCase()).map((log) => log.args.tokenId)
+
+    return await Promise.all(
+      ownedIds.map(async (tokenId) => {
+        const [meta, status] = await Promise.all([
+          publicClient.readContract({ address: CONTRACTS.ticket, abi: ticketAbi, functionName: 'ticketMeta', args: [tokenId] }),
+          publicClient.readContract({ address: CONTRACTS.ticket, abi: ticketAbi, functionName: 'tokenStatus', args: [tokenId] }),
+        ])
+        const teams = GAME_TEAMS_BY_HASH[meta.gameId] || { home: 'LG', away: 'LG' }
+        return {
+          tokenId: `KBO-${tokenId}`,
+          realTokenId: tokenId,
+          onchain: true,
+          home: teams.home,
+          away: teams.away,
+          date: formatGameDate(meta.startTime),
+          seat: `${gradeForRow(meta.row)} ${meta.row}열 ${meta.seat}번`,
+          price: meta.faceValueKrw,
+          faceValue: meta.faceValueKrw,
+          used: status !== 0,
+        }
+      })
+    )
+  } catch (err) {
+    console.error('loadOwnedOnchainTickets failed', err)
+    return []
+  }
+}
 
 /* ── 유틸 ─────────────────────────────────────────────────────── */
 const RARITIES = {
@@ -582,6 +726,7 @@ export default function App() {
   const [games, setGames] = useState(initialGames)
   const [tickets, setTickets] = useState(initialTickets)
   const [listings, setListings] = useState(initialListings)
+  const [recentTrades, setRecentTrades] = useState([])
   const [flipped, setFlipped] = useState({})
   const [toast, setToast] = useState(null)
   // 모달 상태
@@ -613,6 +758,44 @@ export default function App() {
     if (t && TABS.some((x) => x.key === t)) setTab(t)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  const refreshRecentTrades = () => { loadRecentOnchainTrades().then(setRecentTrades) }
+  // 판매된 좌석은 체인이 진실이다. sold:false였던 좌석만 true로 덮어써서
+  // 새로고침해도 같은 좌석을 다시 살 수 있는 상태로 돌아가지 않게 한다.
+  const refreshOnchainSeats = () => {
+    loadOnchainSoldSeatIds().then((soldByGame) => {
+      setGames((prev) =>
+        prev.map((g) => {
+          const sold = soldByGame[g.id]
+          if (!sold || sold.size === 0) return g
+          return { ...g, seats: g.seats.map((s) => (sold.has(s.id) ? { ...s, sold: true } : s)) }
+        })
+      )
+    })
+  }
+  // 연결된 지갑이 실제로 들고 있는 NFT를 매번 체인에서 다시 읽어 온체인 티켓을 갱신한다.
+  const refreshOwnedTickets = () => {
+    if (!wallet.address) return
+    loadOwnedOnchainTickets(wallet.address).then((onchainTickets) => {
+      setTickets((prev) => [...onchainTickets, ...prev.filter((t) => !t.onchain)])
+    })
+  }
+
+  useEffect(() => {
+    refreshRecentTrades()
+    refreshOnchainSeats()
+    const id = window.setInterval(() => {
+      refreshRecentTrades()
+      refreshOnchainSeats()
+    }, 20_000)
+    return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  useEffect(() => {
+    refreshOwnedTickets()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [wallet.address])
 
   const showToast = (message, tone = 'ok') => setToast({ id: Date.now(), message, tone })
   const toggleFlip = (id) => setFlipped((p) => ({ ...p, [id]: !p[id] }))
@@ -668,6 +851,9 @@ export default function App() {
         setGames((prev) => prev.map((g) => g.id === game.id ? { ...g, seats: g.seats.map((s) => s.id === seat.id ? { ...s, sold: true } : s) } : g))
         const realTokenId = result.tokenId
         setTickets((prev) => [{ tokenId: `KBO-${realTokenId}`, realTokenId, onchain: true, txHash: result.hash, home: game.home, away: game.away, date: `${game.date.md} ${game.date.dow} ${game.date.time}`, seat: `${seat.zone} ${seat.row}열 ${seat.seat}번`, price: seat.price, faceValue: seat.price, used: false }, ...prev])
+        refreshRecentTrades()
+        refreshOnchainSeats()
+        refreshOwnedTickets()
       },
       onError: (err) => showToast(txErrorMessage(err), 'warn'),
     })
@@ -707,6 +893,8 @@ export default function App() {
       onComplete: () => {
         setListings((prev) => prev.filter((x) => x.id !== listing.id))
         setTickets((prev) => [{ tokenId: `KBO-${listing.realTokenId}`, realTokenId: listing.realTokenId, onchain: true, home: listing.home, away: listing.away, date: listing.dateText.replace(/^2026\./, '').slice(0, 11), seat: `${listing.grade} ${listing.block} ${listing.row}`, price: listing.pricePer, faceValue: listing.faceValue, used: false }, ...prev])
+        refreshRecentTrades()
+        refreshOwnedTickets()
       },
       onError: (err) => showToast(txErrorMessage(err), 'warn'),
     })
@@ -877,15 +1065,19 @@ export default function App() {
                 </div>
                 <div className="rail-card">
                   <h4>최근 온체인 거래</h4>
-                  <ul className="trade-feed">
-                    {recentOnchainTrades.map((t) => (
-                      <li key={t.hash}>
-                        <span className="tf-dot" />
-                        <div><strong>{t.match}</strong><em>{t.grade} · {formatWon(t.price)}</em></div>
-                        <a href={`${EXPLORER}/tx/${t.hash}`} target="_blank" rel="noreferrer">{t.hash}…<br />{t.ago}</a>
-                      </li>
-                    ))}
-                  </ul>
+                  {recentTrades.length === 0 ? (
+                    <p className="rail-empty">아직 체인에 기록된 거래가 없어요.</p>
+                  ) : (
+                    <ul className="trade-feed">
+                      {recentTrades.map((t) => (
+                        <li key={t.key}>
+                          <span className="tf-dot" />
+                          <div><strong>{t.match}</strong><em>{t.grade} · {formatWon(t.price)}</em></div>
+                          <a href={`${EXPLORER}/tx/${t.hash}`} target="_blank" rel="noreferrer">{shortAddr(t.hash)}<br />{t.ago}</a>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
               </aside>
             </div>
