@@ -461,25 +461,32 @@ function TxModal({ tx, onClose }) {
   const [error, setError] = useState(null)
   const meta = useRef(tx.simulated === false ? {} : { hash: randTxHash(), block: 4821507 + Math.floor(Math.random() * 900) })
   const committed = useRef(false)
+  const executed = useRef(false)
   const stages = tx.simulated === false ? REAL_TX_STAGES : TX_STAGES
 
   useEffect(() => {
     if (tx.simulated === false) {
-      let alive = true
-      tx.execute((hash) => { if (alive) { meta.current.hash = hash; setStage(2) } })
+      // StrictMode(개발 모드)는 effect를 mount→cleanup→mount로 두 번 실행하는데,
+      // cleanup은 이후 상태 업데이트만 막을 뿐 이미 보낸 writeContract 호출(실제 결제)은
+      // 막지 못한다. 한 번의 클릭이 실제 트랜잭션 두 건으로 이어지는 걸 막기 위해
+      // tx.execute()는 이 인스턴스에서 정확히 한 번만 호출되도록 ref로 잠근다.
+      if (executed.current) return undefined
+      executed.current = true
+      // StrictMode의 synthetic cleanup이 (실제 서명/컨펌이 끝나기 전에) 즉시 실행되므로
+      // "alive" 플래그로 이후 콜백을 막으면 진짜 결과가 영원히 무시된다.
+      // executed 가드로 중복 전송만 막고, 결과 콜백은 항상 반영한다.
+      tx.execute((hash) => { meta.current.hash = hash; setStage(2) })
         .then((result) => {
-          if (!alive) return
           meta.current = { ...meta.current, ...result }
           setDone(true)
           if (!committed.current) { committed.current = true; tx.onComplete?.(meta.current) }
         })
         .catch((err) => {
-          if (!alive) return
           const message = err?.shortMessage || err?.message || '트랜잭션이 실패했어요.'
           setError(message)
           tx.onError?.(err)
         })
-      return () => { alive = false }
+      return undefined
     }
 
     let alive = true
