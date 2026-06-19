@@ -96,8 +96,8 @@ function SlideTitle({ active }) {
       </div>
 
       <p className="tagline">
-        현실의 문제를 꿰뚫는 <b>하나의 의도</b>가 있다면,<br />
-        AI와 함께 무엇이든 해결할 수 있다는 마음을 이름에 담았습니다.
+        AI는 도구일 뿐입니다. 현실의 문제를 해결하는 가장 큰 힘은<br />
+        본질을 꿰뚫는 <b>인간의 직관</b>입니다.
       </p>
     </Slide>
   )
@@ -146,7 +146,7 @@ function SlideProblem({ active }) {
 function SlideIntent({ active }) {
   return (
     <Slide active={active} className="s-center">
-      <span className="d-kicker"><Seam /> 이번 해커톤의 출발점</span>
+      <span className="d-kicker"><Seam /> 나의 해커톤 출발점</span>
       <p className="intent-quote" style={{ marginTop: 26 }}>
         AI를 활용해<br />
         <span className="mark">현실의 문제</span>를 풀고 싶었습니다.
@@ -184,39 +184,43 @@ function SlideIntent({ active }) {
 function SlideSolution({ active }) {
   return (
     <Slide active={active} className="s-solution">
-      <span className="d-kicker"><Seam /> 한 가지 기술적 통찰</span>
+      <span className="d-kicker"><Seam /> 이 문제를 해결하는 핵심 기술</span>
+      <div className="giwa-brand" aria-label="GIWA Chain">
+        <span>BUILT ON</span>
+        <img src="/assets/giwa-chain-logo.png" alt="GIWA" />
+      </div>
       <h1 className="solution-title">
-        일반 블록체인은 <span className="muted-word">지갑 주소</span>만 봅니다.<br />
-        GIWA Dojang은 <span className="d-hl-gold">검증된 사람</span>인지 확인합니다.
+        신뢰할 수 있는 <span className="d-hl-gold">고객확인</span>을,<br />
+        암표를 막는 <span className="d-hl">블록체인 신원 인증</span>으로.
       </h1>
 
       <div className="dojang-flow">
         <div className="dojang-step">
           <span className="dojang-no">1</span>
-          <b>오프체인 본인확인</b>
-          <small>신뢰할 수 있는 발행자가 사용자를 확인</small>
+          <b>신뢰할 수 있는 고객확인</b>
+          <small>Upbit 같은 신뢰할 수 있는 발행자가 사용자를 확인</small>
         </div>
         <span className="dojang-arrow">→</span>
         <div className="dojang-step privacy">
           <span className="dojang-no">2</span>
-          <b>PII 없는 Verified Address</b>
-          <small>이름·전화번호는 체인에 공개하지 않음</small>
+          <b>Dojang 인증 자격 발급</b>
+          <small>확인 결과를 블록체인에서 검증 가능한 자격으로 연결</small>
         </div>
         <span className="dojang-arrow">→</span>
         <div className="dojang-step verify">
           <span className="dojang-no">3</span>
-          <b><code>isVerified()</code></b>
-          <small>스마트 컨트랙트가 자격을 즉시 확인</small>
+          <b>티켓 거래 규칙 적용</b>
+          <small>인증된 지갑만 예매하고 정가 이하로 양도</small>
         </div>
       </div>
 
       <div className="policy-band">
         <span className="policy-icon"><IconShield /></span>
         <div>
-          <strong>직관은 이 ‘검증 가능한 자격’을 티켓 규칙으로 바꿨습니다.</strong>
-          <p>검증된 지갑만 예매·양도하고, 정가를 넘는 거래는 컨트랙트가 거부합니다.</p>
+          <strong>GIWA Chain × Dojang으로 신원이 보장된 티켓 시장을 만듭니다.</strong>
+          <p>인증 자격에 구매 제한과 정가 상한을 결합해 암표 거래를 구조적으로 막습니다.</p>
         </div>
-        <span className="policy-result">익명 대량 매집의 비용은 높이고<br /><b>진짜 팬의 거래는 안전하게</b></span>
+        <span className="policy-result">암표상과 진짜 팬을 구분하는 기반<br /><b>신뢰할 수 있는 팬 거래</b></span>
       </div>
     </Slide>
   )
@@ -252,26 +256,26 @@ function SlideDemo({ active }) {
           index="01"
           src="/assets/demo-booking.gif"
           icon={<IconShield />}
-          title="인증하고 예매"
-          description="Dojang 인증 지갑만 좌석을 정가로 예매"
+          title="티켓 NFT 구매"
+          description="구단이 발행한 티켓을 인증된 사용자가 구매"
         />
         <DemoPreview
           index="02"
           src="/assets/demo-transfer.gif"
           icon={<IconTag />}
-          title="NFT로 보관·양도"
-          description="내 컬렉션에서 확인하고 정가 이하로만 양도"
+          title="정가 이하 양도"
+          description="인증된 사용자끼리 NFT 티켓을 안전하게 거래"
         />
         <DemoPreview
           index="03"
           src="/assets/demo-entry.gif"
           icon={<IconQR />}
-          title="Live QR로 입장"
-          description="현재 소유자만 발급받는 재사용 방지 입장권"
+          title="QR로 입장"
+          description="NFT로 보관된 티켓의 QR로 경기장 입장"
         />
       </div>
       <p className="demo-foot">
-        팬은 블록체인을 몰라도 됩니다. <b>안전한 예매·양도·입장 경험</b>만 남습니다.
+        모든 기능은 GIWA 테스트넷에 배포되어 있습니다. <b>직관 홈페이지에서 지갑을 연결해 직접 경험해보세요.</b>
       </p>
     </Slide>
   )
@@ -331,8 +335,8 @@ function SlideThesis({ active }) {
       </div>
 
       <p className="thesis-foot">
-        경험 속에서 해결하고 싶은 문제를 발견하고,<br />
-        그 문제를 향한 <span className="d-hl">분명한 의도</span>가 AI를 움직였습니다.
+        경험이 연결되며 창발한 직관으로 문제를 발견하고,<br />
+        <span className="d-hl">분명한 의도</span>로 AI가 나아갈 방향을 제시했습니다.
       </p>
     </Slide>
   )

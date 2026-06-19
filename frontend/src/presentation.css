@@ -550,7 +550,33 @@
 /* ============================================================
    슬라이드 4 — 솔루션 / Dojang
    ============================================================ */
-.s-solution { padding-top: 78px; }
+.s-solution {
+  position: relative;
+  padding-top: 78px;
+}
+.giwa-brand {
+  position: absolute;
+  top: 74px;
+  right: 76px;
+  width: 158px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 5px;
+}
+.giwa-brand span {
+  color: var(--d-muted);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.12em;
+}
+.giwa-brand img {
+  width: 158px;
+  height: auto;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+}
 .solution-title {
   margin: 20px 0 0;
   font-size: 49px;
@@ -747,7 +773,7 @@
 }
 .demo-media {
   position: relative;
-  height: 250px;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
   border-bottom: 1px solid var(--d-line);
   background:
