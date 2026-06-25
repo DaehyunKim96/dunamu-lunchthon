@@ -376,7 +376,7 @@ function WalletChip({ wallet }) {
     return <button className="wallet-chip" type="button" disabled><span className="spinner" aria-hidden="true" /><span>연결 중…</span></button>
   }
   if (status === 'wrong-network') {
-    return <button className="wallet-chip unverified" type="button" onClick={wallet.switchNetwork}><span className="status-dot" aria-hidden="true" /><span>GIWA로 전환</span></button>
+    return <button className="wallet-chip unverified" type="button" onClick={wallet.switchNetwork}><span className="status-dot" aria-hidden="true" /><span>네트워크 전환</span></button>
   }
   const label = handle || shortAddr(address)
   const state = verifying ? 'checking' : verified === true ? 'ok' : verified === false ? 'no' : 'unknown'
@@ -413,11 +413,11 @@ function VerifyBanner({ wallet, appMode, onSwitchMode }) {
 
   let tone = 'idle'
   let title = '지갑을 연결하고 검증된 팬으로 예매하세요'
-  let desc = 'GIWA Dojang 실명 인증을 통과한 지갑만 예매·양도할 수 있어요.'
-  if (status === 'wrong-network') { tone = 'warn'; title = 'GIWA Sepolia 네트워크로 전환이 필요해요'; desc = '검증과 발권은 GIWA 체인에서 처리됩니다.' }
-  else if (connected && verifying) { tone = 'idle'; title = `${handle || shortAddr(address)} · 검증 확인 중`; desc = 'Dojang OnchainVerifier 를 조회하고 있어요.' }
-  else if (connected && verified) { tone = 'ok'; title = `${handle || shortAddr(address)} · Dojang 인증 완료`; desc = 'Upbit Korea attester 기준 검증된 팬이에요. 실제 온체인 트랜잭션으로 예매할 수 있어요.' }
-  else if (connected && verified === false) { tone = 'warn'; title = '아직 검증되지 않은 지갑이에요'; desc = 'Dojang에서 Verified Address를 발급받으면 예매할 수 있어요.' }
+  let desc = '블록체인 실명 인증을 통과한 지갑만 예매·양도할 수 있어요.'
+  if (status === 'wrong-network') { tone = 'warn'; title = '블록체인 테스트넷으로 전환이 필요해요'; desc = '검증과 발권은 블록체인에서 처리됩니다.' }
+  else if (connected && verifying) { tone = 'idle'; title = `${handle || shortAddr(address)} · 검증 확인 중`; desc = '온체인 인증서를 조회하고 있어요.' }
+  else if (connected && verified) { tone = 'ok'; title = `${handle || shortAddr(address)} · 온체인 인증 완료`; desc = 'Upbit Korea attester 기준 검증된 팬이에요. 실제 온체인 트랜잭션으로 예매할 수 있어요.' }
+  else if (connected && verified === false) { tone = 'warn'; title = '아직 검증되지 않은 지갑이에요'; desc = '온체인 인증서를 발급받으면 예매할 수 있어요.' }
 
   return (
     <div className={`verify-banner ${tone}`}>
@@ -431,8 +431,8 @@ function VerifyBanner({ wallet, appMode, onSwitchMode }) {
       </div>
       <div className="vb-action">
         {!connected ? <button className="primary-button slim" type="button" onClick={wallet.connect}>지갑 연결</button>
-          : status === 'wrong-network' ? <button className="primary-button slim" type="button" onClick={wallet.switchNetwork}>GIWA로 전환</button>
-          : verified === false ? <a className="ghost-button slim" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">Dojang 인증받기 ↗</a>
+          : status === 'wrong-network' ? <button className="primary-button slim" type="button" onClick={wallet.switchNetwork}>네트워크 전환</button>
+          : verified === false ? <a className="ghost-button slim" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">온체인 인증받기 ↗</a>
           : verified === null && !verifying ? <button className="ghost-button slim" type="button" onClick={wallet.recheck}>다시 확인</button>
           : <a className="ghost-button slim" href={`${EXPLORER}/address/${address}`} target="_blank" rel="noreferrer">{shortAddr(address)} ↗</a>}
       </div>
@@ -445,14 +445,14 @@ function VerifyBanner({ wallet, appMode, onSwitchMode }) {
 // tx.simulated === false: tx.execute(onSubmitted) 가 실제 walletClient.writeContract 를 호출하고
 // 실제 tx hash/블록으로 진행 상태를 채운다.
 const TX_STAGES = [
-  { key: 'sign', label: '지갑 서명 요청', sub: 'GIWA 지갑에서 거래를 승인하세요', ms: 1100 },
-  { key: 'broadcast', label: '트랜잭션 전송', sub: 'GIWA Sepolia 네트워크로 브로드캐스트', ms: 800 },
+  { key: 'sign', label: '지갑 서명 요청', sub: '지갑에서 거래를 승인하세요', ms: 1100 },
+  { key: 'broadcast', label: '트랜잭션 전송', sub: '블록체인 테스트넷으로 브로드캐스트', ms: 800 },
   { key: 'preconfirm', label: 'Flashblocks Preconfirm', sub: '약 200ms 만에 프리컨펌 수신', ms: 600 },
   { key: 'confirm', label: '블록 확정', sub: '1 confirmation 기록', ms: 1000 },
 ]
 const REAL_TX_STAGES = [
   { key: 'sign', label: '지갑 서명 요청', sub: 'MetaMask에서 트랜잭션을 승인하세요' },
-  { key: 'broadcast', label: '트랜잭션 전송', sub: 'GIWA Sepolia 네트워크로 브로드캐스트' },
+  { key: 'broadcast', label: '트랜잭션 전송', sub: '블록체인 테스트넷으로 브로드캐스트' },
   { key: 'confirm', label: '블록 확정 대기', sub: '1 confirmation 대기 중' },
 ]
 function TxModal({ tx, onClose }) {
@@ -548,7 +548,7 @@ function TxModal({ tx, onClose }) {
             <h3>{tx.successTitle}</h3>
             <p>{tx.successText}</p>
             <dl className="tx-receipt">
-              <div><dt>네트워크</dt><dd>GIWA Sepolia</dd></div>
+              <div><dt>네트워크</dt><dd>블록체인 테스트넷</dd></div>
               <div><dt>컨트랙트</dt><dd>{tx.contract}</dd></div>
               <div><dt>블록</dt><dd>#{Number(meta.current.block).toLocaleString()}</dd></div>
               <div><dt>Tx Hash</dt><dd><a href={`${EXPLORER}/tx/${meta.current.hash}`} target="_blank" rel="noreferrer">{shortHash(meta.current.hash)} ↗</a></dd></div>
@@ -614,13 +614,13 @@ function SeatModal({ game, wallet, appMode, onClose, onCheckout }) {
 
             <ul className="trust-list">
               <li className={connected ? 'done' : ''}><span className="check">{connected ? '✓' : ''}</span>지갑 연결</li>
-              <li className={verified ? 'done' : ''}><span className="check">{verified ? '✓' : ''}</span>Dojang 실명 인증</li>
+              <li className={verified ? 'done' : ''}><span className="check">{verified ? '✓' : ''}</span>온체인 실명 인증</li>
               <li className="done"><span className="check">✓</span>구단 공식 정가 발행</li>
               <li className={canBuy ? 'done' : ''}><span className="check">{canBuy ? '✓' : ''}</span>NFT 입장권 즉시 발급</li>
             </ul>
 
             {!connected ? <button className="primary-button" type="button" onClick={wallet.connect}>지갑 연결하고 예매</button>
-              : !verified ? <a className="primary-button as-link" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">Dojang 인증이 필요해요</a>
+              : !verified ? <a className="primary-button as-link" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">온체인 인증이 필요해요</a>
               : <button className="primary-button" type="button" disabled={!seat} onClick={() => onCheckout(seat)}>
                   {seat ? `${formatWon(seat.price)} 결제하기` : '좌석을 선택하세요'}
                 </button>}
@@ -672,7 +672,7 @@ function ListingModal({ listing, wallet, appMode, onClose, onBuy }) {
             <div className="lm-row total"><span>총 가격</span><b>{formatWon(total)}</b></div>
             {save > 0 && <p className="lm-save">정가 대비 {formatWon(save)} 절약</p>}
             {!connected ? <button className="primary-button" type="button" onClick={wallet.connect}>지갑 연결하고 양도받기</button>
-              : !verified ? <a className="primary-button as-link" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">Dojang 인증이 필요해요</a>
+              : !verified ? <a className="primary-button as-link" href={DOJANG_GUIDE} target="_blank" rel="noreferrer">온체인 인증이 필요해요</a>
               : <button className="primary-button" type="button" onClick={() => onBuy(listing)}>양도받기 (온체인 정산)</button>}
           </div>
         </div>
@@ -962,7 +962,6 @@ export default function App() {
         </nav>
         <div className="top-right">
           <ModeToggle mode={appMode} onChange={handleModeChange} />
-          <span className="net-badge"><span className="net-dot" />GIWA Sepolia</span>
           <WalletChip wallet={wallet} />
         </div>
       </header>
@@ -974,7 +973,7 @@ export default function App() {
               <img src="/assets/ballpark-ticket-gate.png" alt="" className="hero-media" />
               <div className="hero-overlay" />
               <div className="hero-content">
-                <p className="eyebrow"><ChainTag>GIWA 블록체인 검증 티켓</ChainTag></p>
+                <p className="eyebrow"><ChainTag>블록체인 검증 티켓</ChainTag></p>
                 <h1 id="heroTitle">검증된 팬만,<br />정가 그대로.</h1>
                 <p className="hero-sub">실명 인증된 팬만 정가에 예매하고, 못 가는 날엔 정가 이하로만 온체인 양도하세요. 모든 입장권은 한정판 NFT 카드로 소장됩니다.</p>
               </div>
@@ -1127,7 +1126,7 @@ export default function App() {
 
       <footer className="site-foot">
         <div className="brand"><span className="brand-word">직관<em>JIKGWAN</em></span></div>
-        <p>검증된 팬만, 정가 그대로. · GIWA 블록체인 기반 KBO 검증 티켓</p>
+        <p>검증된 팬만, 정가 그대로. · 블록체인 기반 KBO 검증 티켓</p>
       </footer>
 
       <nav className="mobile-tab-bar" aria-label="모바일 주요 화면">

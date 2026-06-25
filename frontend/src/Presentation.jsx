@@ -185,10 +185,6 @@ function SlideSolution({ active }) {
   return (
     <Slide active={active} className="s-solution">
       <span className="d-kicker"><Seam /> 이 문제를 해결하는 핵심 기술</span>
-      <div className="giwa-brand" aria-label="GIWA Chain">
-        <span>BUILT ON</span>
-        <img src="/assets/giwa-chain-logo.png" alt="GIWA" />
-      </div>
       <h1 className="solution-title">
         신뢰할 수 있는 <span className="d-hl-gold">고객확인</span>을,<br />
         암표를 막는 <span className="d-hl">블록체인 신원 인증</span>으로.
@@ -203,7 +199,7 @@ function SlideSolution({ active }) {
         <span className="dojang-arrow">→</span>
         <div className="dojang-step privacy">
           <span className="dojang-no">2</span>
-          <b>Dojang 인증 자격 발급</b>
+          <b>온체인 인증서 발급</b>
           <small>확인 결과를 블록체인에서 검증 가능한 자격으로 연결</small>
         </div>
         <span className="dojang-arrow">→</span>
@@ -217,7 +213,7 @@ function SlideSolution({ active }) {
       <div className="policy-band">
         <span className="policy-icon"><IconShield /></span>
         <div>
-          <strong>GIWA Chain × Dojang으로 신원이 보장된 티켓 시장을 만듭니다.</strong>
+          <strong>블록체인 인증서로 신원이 보장된 티켓 시장을 만듭니다.</strong>
           <p>인증 자격에 구매 제한과 정가 상한을 결합해 암표 거래를 구조적으로 막습니다.</p>
         </div>
         <span className="policy-result">암표상과 진짜 팬을 구분하는 기반<br /><b>신뢰할 수 있는 팬 거래</b></span>
@@ -275,7 +271,7 @@ function SlideDemo({ active }) {
         />
       </div>
       <p className="demo-foot">
-        모든 기능은 GIWA 테스트넷에 배포되어 있습니다. <b>직관 홈페이지에서 지갑을 연결해 직접 경험해보세요.</b>
+        모든 기능은 블록체인 테스트넷에 배포되어 있습니다. <b>직관 홈페이지에서 지갑을 연결해 직접 경험해보세요.</b>
       </p>
     </Slide>
   )
@@ -375,7 +371,7 @@ function SlideClose({ active }) {
       <div className="close-cta">
         검증된 팬만, 정가 그대로 — 직관<em> JIKGWAN</em>
       </div>
-      <p className="close-foot">GIWA Sepolia · Dojang · On-chain Ticketing</p>
+      <p className="close-foot">Blockchain Testnet · 온체인 인증서 · On-chain Ticketing</p>
     </Slide>
   )
 }

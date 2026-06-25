@@ -112,7 +112,7 @@ export function useWallet() {
         runVerification(address)
       }
     } catch (err) {
-      patch({ error: 'GIWA Sepolia 네트워크 전환을 승인해 주세요.' })
+      patch({ error: '블록체인 테스트넷 네트워크 전환을 승인해 주세요.' })
     }
   }, [provider, patch, runVerification])
 
